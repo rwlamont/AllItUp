@@ -1,0 +1,56 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#Visual Studio files
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.opensdf
+*.steven
+*.kerry
+ipch/
+obj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+Ankh.NoLoad
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+
+#Project files
+[Bb]uild/
+
+#Subversion files
+.svn
+
+# Office Temp Files
+~$*
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv Site Meta Data.txt
+/IndiaTango/IndiaTango.Tests/Test Data/datasetIndividualColumnsTest.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csvChange Log.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csvChangesTest.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv Changes Log.txt
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv Changes Matrix.csv
+/IndiaTango/IndiaTango.Tests/Test Data/dataSetExporterTest.csv Raw.csv

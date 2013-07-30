@@ -1,0 +1,605 @@
+﻿<Window x:Class="IndiaTango.Views.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:charts="clr-namespace:Visiblox.Charts;assembly=Visiblox.Charts"
+        xmlns:multiseries="clr-namespace:IndiaTango.MultiSeriesBinding"
+        xmlns:models="clr-namespace:IndiaTango.Models"
+        xmlns:toolkit="clr-namespace:Microsoft.Windows.Controls;assembly=WPFToolkit.Extended"
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="800" Width="1200" WindowStartupLocation="CenterScreen" Cursor="{Binding ApplicationCursor}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <cal:ActionMessage MethodName="ClosingRequested">
+                <cal:Parameter Value="$eventArgs" />
+            </cal:ActionMessage>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="PreviewKeyDown">
+            <cal:ActionMessage MethodName="KeyDown">
+                <cal:Parameter Value="$eventArgs" />
+            </cal:ActionMessage>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Window.Resources>
+        <models:FloatStringConverter x:Key="floatStringConverter" />
+        <models:IntStringConverter x:Key="intStringConverter" />
+        <models:TimeSpanStringConverter x:Key="timeSpanStringConverter" />
+        <models:ColourConverter x:Key="colourConverter" />
+        <models:CellForegroundConverter x:Key="cellForegroundConverter" />
+    </Window.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0" x:Name="MainMenu" IsMainMenu="True" IsEnabled="{Binding FeaturesEnabled}">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Site" cal:Message.Attach="[Event Click] = [Action CreateNewSite]" />
+                <Separator />
+                <MenuItem Header="_Save" cal:Message.Attach="[Event Click] = [Action Save]" />
+                <MenuItem Header="Save _As..." cal:Message.Attach="[Event Click] = [Action SaveAs]" />
+                <Separator />
+                <MenuItem Header="_Import" cal:Message.Attach="[Event Click] = [Action Import]" />
+                <MenuItem Header="I_mport Site..." cal:Message.Attach="[Event Click] = [Action ImportSite]" />
+                <MenuItem Header="E_xport..." cal:Message.Attach="[Event Click] = [Action Export]" />
+                <Separator />
+                <MenuItem Header="_Delete Site" cal:Message.Attach="[Event Click] = [Action DeleteSite]" />
+                <Separator />
+                <MenuItem Header="Se_ttings" cal:Message.Attach="[Event Click] = [Action ShowSettings]" />
+                <MenuItem Header="_Exit" cal:Message.Attach="[Event Click] = [Action Exit]" />
+            </MenuItem>
+            <MenuItem Header="_Sensors">
+                <MenuItem Header="_Revert to raw" cal:Message.Attach="[Event Click] = [Action RevertToRaw]" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
+            </MenuItem>
+            <MenuItem Header="_About" cal:Message.Attach="[Event Click] = [Action ShowAbout]" />
+        </Menu>
+
+        <Grid Grid.Row="1" x:Name="MainSection">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="415" MinWidth="415" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="760" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" x:Name="DataSection" Margin="5,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <GroupBox Grid.Row="0" x:Name="TableSection" Header="Sensors" BorderBrush="OrangeRed">
+                    <models:CustomSortDataGrid x:Name="DataGrid" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding GraphableSensors}" AlternatingRowBackground="LightGray" AlternationCount="2" AutoGenerateColumns="False" CanUserReorderColumns="True" FrozenColumnCount="2" BorderThickness="0" Background="Transparent" SelectionMode="Single" EnableRowVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" cal:Message.Attach="[Event BeginningEdit] = [Action DisableActions];[Event CellEditEnding] = [Action EnableActions]" >
+                        <models:CustomSortDataGrid.ContextMenu>
+                            <ContextMenu x:Name="dataGridContextMenu" IsEnabled="{Binding FeaturesEnabled}">
+                                <MenuItem Header="Delete">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="DeleteSensor">
+                                                <cal:Parameter Value="{Binding ElementName=DataGrid, Path=SelectedItem}" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </MenuItem>
+                            </ContextMenu>
+                        </models:CustomSortDataGrid.ContextMenu>
+                        <models:CustomSortDataGrid.Columns>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding This}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <cal:ActionMessage MethodName="AddToGraph">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="Unchecked">
+                                                    <cal:ActionMessage MethodName="RemoveFromGraph">
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2" IsChecked="{Binding DataContext.UncheckAllSensors, ElementName=LayoutRoot, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Sensor.Name}" />
+                            <DataGridTextColumn Header="Sort Index" Binding="{Binding Sensor.SortIndex, Converter={StaticResource intStringConverter}}" SortMemberPath="Sensor.SortIndex" />
+                            <DataGridTextColumn Header="Variable" Binding="{Binding Sensor.Variable}" IsReadOnly="True" SortMemberPath="Sensor.Variable" />
+                            <DataGridTemplateColumn Header="Parameter" CanUserSort="True" SortMemberPath="Sensor.SensorType">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.SensorType}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="SensorVocabulary" ItemsSource="{Binding Sensor.SensorVocabulary}" IsEditable="True" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Parameter (Abbreviation)" CanUserSort="True" SortMemberPath="Sensor.SensorType">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.SensorTypeAbrev}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="SensorVocabulary" ItemsSource="{Binding Sensor.SensorVocabulary}" IsEditable="True" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Unit" CanUserSort="True" SortMemberPath="Sensor.Unit">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.Unit}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="Units" ItemsSource="{Binding Sensor.Units}" IsEditable="True" SelectedItem="{Binding Sensor.Unit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Position" CanUserSort="True" SortMemberPath="Sensor.Position">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.Position}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="Units" ItemsSource="{Binding Sensor.Units}" IsEditable="True" SelectedItem="{Binding Sensor.Unit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Location" Binding="{Binding Sensor.Location}" />
+                            <DataGridTextColumn Header="Accuracy (+/-)" Binding="{Binding Sensor.CurrentMetaData.Accuracy, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTextColumn Header="Max Rate of Change" Binding="{Binding Sensor.MaxRateOfChange, Converter={StaticResource floatStringConverter}}" />
+                            <DataGridTemplateColumn Header="Serial Number" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.SerialNumber">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.CurrentMetaData.SerialNumber}" Margin="2,0"  />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Sensor.MetaData}" SelectedItem="{Binding Sensor.CurrentMetaData}" IsTextSearchEnabled="True" IsEditable="True" TextSearch.TextPath="SerialNumber">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding SerialNumber}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="KeyDown">
+                                                    <cal:ActionMessage MethodName="AddNewMetaData">
+                                                        <cal:Parameter Value="{Binding This}" />
+                                                        <cal:Parameter Value="$eventArgs" />
+                                                        <cal:Parameter Value="$source" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Manufacturer" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.Manufacturer">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.CurrentMetaData.Manufacturer}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="Manufacturers" ItemsSource="{Binding Sensor.Manufacturers}" IsEditable="True" SelectedItem="{Binding Sensor.CurrentMetaData.Manufacturer,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Description" CanUserSort="True" SortMemberPath="Sensor.Description">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.Description}" Margin="2,0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <models:EditableComboBox Helper="Descriptions" ItemsSource="{Binding Sensor.Descriptions}" IsEditable="True" SelectedItem="{Binding Sensor.Description,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Summary Type" CanUserSort="True" SortMemberPath="Sensor.SummaryType">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.SummaryType}" Margin="2,0"  />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedValue="{Binding Sensor.SummaryType}">
+                                            <models:SummaryType>Average</models:SummaryType>
+                                            <models:SummaryType>Sum</models:SummaryType>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Calibration Details">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="View" Margin="5,0" TextDecorations="Underline" HorizontalAlignment="Center">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="MouseDown">
+                                                    <cal:ActionMessage MethodName="ShowCalibrationDetails">
+                                                        <cal:Parameter Value="{Binding Sensor}" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Ideal Calibration Frequency (Days)" Binding="{Binding Sensor.CurrentMetaData.IdealCalibrationFrequency, Converter={StaticResource timeSpanStringConverter}}" />
+                            <DataGridTemplateColumn Header="Date of Installation" CanUserSort="True" SortMemberPath="Sensor.CurrentMetaData.DateOfInstallation">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Sensor.CurrentMetaData.DateOfInstallationString}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <toolkit:DateTimePicker Value="{Binding Sensor.CurrentMetaData.DateOfInstallation,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="yyyy/MM/dd" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Colour" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <toolkit:ColorPicker Width="40" DisplayColorAndName="False" SelectedColor="{Binding Sensor.Colour, Converter={StaticResource colourConverter}, UpdateSourceTrigger=PropertyChanged}" ShowStandardColors="False" cal:Message.Attach="[Event SelectedColorChanged] = [Action ColourChanged($eventArgs, $this)]" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </models:CustomSortDataGrid.Columns>
+                    </models:CustomSortDataGrid>
+                </GroupBox>
+                <GridSplitter Grid.Row="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows" Height="3" Margin="5,7" HorizontalAlignment="Stretch" Background="OrangeRed" />
+                <TabControl Grid.Row="2" Name="TabSection" cal:Message.Attach="[Event SelectionChanged] = [Action TabChanged($eventArgs)]">
+                    <TabItem Header="Home">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="3*" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Name="specifyDateCheckbox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Content="Specify Date" />
+                                <toolkit:DateTimePicker Name="notesDate" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsChecked, ElementName=specifyDateCheckbox}" Format="Custom" FormatString="yyyy/MM/dd HH:mm}" />
+                                <TextBox Margin="0,5" Name="notesString" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+                                <Button Content="Add Note" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="AddNote">
+                                                <cal:Parameter Value="{Binding IsChecked, ElementName=specifyDateCheckbox}" />
+                                                <cal:Parameter Value="{Binding Value, ElementName=notesDate}" />
+                                                <cal:Parameter Value="{Binding Text, ElementName=notesString}" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <ListBox Margin="0,5,0,0" Name="editingNotes" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding EditingNotes}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="KeyDown">
+                                            <cal:ActionMessage MethodName="RemoveEditingNote">
+                                                <cal:Parameter Value="{Binding SelectedItem, ElementName=editingNotes}" />
+                                                <cal:Parameter Value="$eventArgs" />
+                                            </cal:ActionMessage>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="QA\QC Tools">
+                        <GroupBox Header="Detection Methods" BorderBrush="OrangeRed" >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <CheckBox Margin="2" cal:Message.Attach="[Event Checked] = [Action EnableDetectionMethods];[Event Unchecked] = [Action DisableDetectionMethods]">
+                                    <TextBlock Text="Check detection methods for values" FontWeight="Bold" />
+                                </CheckBox>
+                                <TabControl Grid.Row="1" SelectedIndex="0" BorderThickness="0" Background="Transparent" IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding DetectionTabItems}" cal:Message.Attach="[Event SelectionChanged] = [Action DetectionMethodChanged($eventArgs)]" />
+                            </Grid>
+                        </GroupBox>
+                    </TabItem>
+                    <!--
+                    Hidden Tab Due to Incomplete Feature
+                    <TabItem Header="Lake Analysis"> 
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="0" Grid.Row="0" Margin="5,0,0,0" VerticalAlignment="Center" Text="Mixed Temp Differential" />
+                                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding MixedTempDifferential, Converter={StaticResource floatStringConverter}}" />
+                            </Grid>
+                            <Button Grid.Row="1" Content="Calculate and plot Density" cal:Message.Attach="[Event Click] = [PlotDensity]" />
+                            <Button Grid.Row="2" Content="Calculate and plot Thermocline Depth" cal:Message.Attach="[Event Click] = [PlotThermoclineDepth]" />
+                            <Button Grid.Row="3" Content="Calculate and plot Metalimnion Boundaries" cal:Message.Attach="[Event Click] = [PlotMetalimnionBoundaries]" />
+                        </Grid>
+                    </TabItem>-->
+                </TabControl>
+
+                <GroupBox Grid.Row="3" x:Name="ActionsSection" Header="Actions" BorderBrush="OrangeRed" Margin="0,0,0,5">
+                    <StackPanel>
+                        <WrapPanel HorizontalAlignment="Center">
+                            <toolkit:SplitButton FontSize="15"  Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding CanUndo}" cal:Message.Attach="[Event Click] = [Action Undo]">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/B3;component/Images/cancel_32.png" Width="32" Height="32" />
+                                    <TextBlock Text="Undo" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </toolkit:SplitButton>
+                            <toolkit:SplitButton FontSize="15"  Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsEnabled="{Binding CanRedo}" cal:Message.Attach="[Event Click] = [Action Redo]">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/B3;component/Images/redo_32.png" Width="32" Height="32" />
+                                    <TextBlock Text="Redo" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </toolkit:SplitButton>
+                        </WrapPanel>
+                        <Rectangle Height="3" Margin="0,2" Fill="OrangeRed" Stroke="White" SnapsToDevicePixels="True" />
+                        <StackPanel  Margin="5"  HorizontalAlignment="Center"  IsEnabled="{Binding ActionsEnabled}">
+                            <CheckBox Content="Apply To All Sensors" Margin="5,0" IsChecked="{Binding ApplyToAllSensors,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                            <WrapPanel>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action Interpolate]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/graph_interpolate.png" />
+                                        <TextBlock Text="Interpolate" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action RemoveValues]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/remove_point.png" />
+                                        <TextBlock Text="Delete" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button FontSize="15" Width="100" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" VerticalContentAlignment="Center" cal:Message.Attach="[Event Click] = [Action SpecifyValue]">
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="/B3;component/Images/graph_specify.png" />
+                                        <TextBlock Text="Specify Value" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" ResizeBehavior="PreviousAndNext" VerticalAlignment="Stretch" Width="3" Background="OrangeRed" Margin="2,15" />
+
+            <TabControl Grid.Column="2" TabStripPlacement="Left" BorderThickness="0">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type models:CustomTabItem}">
+                        <Setter Property="Padding" Value="4" />
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <ContentPresenter Content="{TemplateBinding Content}">
+                                        <ContentPresenter.LayoutTransform>
+                                            <RotateTransform Angle="90" />
+                                        </ContentPresenter.LayoutTransform>
+                                    </ContentPresenter>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <models:CustomTabItem Header="Graph">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="WasSelected">
+                            <cal:ActionMessage MethodName="EnableGraph" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Grid x:Name="RightSection" Margin="5,5,10,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" x:Name="RightSectionHeader" Margin="5,0,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock Text="Graph" VerticalAlignment="Center" />
+                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SamplingOptions}" Margin="3,0,0,0" Width="100" SelectedIndex="{Binding SamplingOptionIndex, Mode=TwoWay}" />
+                                <TextBlock Text="Points" Margin="3,0,0,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Year" Margin="10,0" VerticalAlignment="Center" />
+                                <ComboBox SelectedItem="{Binding LowestYearLoaded}" ItemsSource="{Binding LowestYearLoadedOptions}" Width="70" />
+                                <TextBlock Text="- to -" Margin="5,0" VerticalAlignment="Center" />
+                                <ComboBox SelectedItem="{Binding HighestYearLoaded}" ItemsSource="{Binding HighestYearLoadedOptions}" Width="70" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
+                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
+                                <Button IsEnabled="{Binding FeaturesEnabled}" Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="1" x:Name="GraphSection" Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="165" />
+                            </Grid.RowDefinitions>
+                            <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
+                                <charts:Chart.YAxis>
+                                    <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
+                                </charts:Chart.YAxis>
+                                <charts:Chart.XAxis>
+                                    <charts:DateTimeAxis Title="Date" />
+                                </charts:Chart.XAxis>
+                            </charts:Chart>
+                            <GroupBox Grid.Row="1" Header="Graph Options" BorderBrush="OrangeRed" Margin="0,0,5,0">
+                                <Grid Margin="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="5,0">
+                                        <Button cal:Message.Attach="[Event Click] = [Action ShowGraphHelp]">
+                                            <Image Width="16" Height="16" Source="/B3;component/Images/help_32.png" />
+                                        </Button>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0">
+                                        <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
+                                            <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                            <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
+                                            <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
+                                            <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd/MM/yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
+                                            <!--<CheckBox Content="Selection Mode" IsChecked="{Binding SelectionModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />-->
+                                            <CheckBox Content="Select all data by date" ToolTip="When checked selections wont be restricted in the Y axis" IsEnabled="{Binding NotInCalibrationMode}" IsChecked="{Binding FixYAxis,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                            <CheckBox Content="Show Annotations/Calibrations" ToolTip="When checked shows the date and value at a given point and shows calibration points" IsChecked="{Binding AnnotationsModeEnabled,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Margin="5,0" />
+                                            <CheckBox Content="Graph Raw Data" IsChecked="{Binding GraphRawData,Mode=OneWayToSource}" VerticalAlignment="Center" />
+                                            <Button Content="Revert to Raw" cal:Message.Attach="[Event Click] = [Action RevertGraphedToRaw]" Visibility="{Binding RevertGraphedToRawVisibility}" Margin="2" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Grid Grid.Row="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="45" />
+                                            <RowDefinition Height="15" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition  Width="80" />
+                                            <ColumnDefinition  Width="Auto" />
+                                            <ColumnDefinition  Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Y Minium: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                                            <Slider IsEnabled="{Binding FeaturesEnabled}" Width="200" Minimum="{Binding MinMinimum}" Maximum="{Binding MaxMinimum}" Value="{Binding Minimum, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Minimum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Maximum: " VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,5">
+                                            <Slider IsEnabled="{Binding FeaturesEnabled}" Width="200" Minimum="{Binding MinMaximum}" Maximum="{Binding MaxMaximum}" Value="{Binding Maximum,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox IsEnabled="{Binding FeaturesEnabled}" Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource floatStringConverter}}" Width="50" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="10,0" HorizontalAlignment="Right">
+                                            <TextBlock Text="x-axis indicators" HorizontalAlignment="Center" FontWeight="Bold" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <Rectangle Stroke="OrangeRed" Fill="OrangeRed" Width="10" Height="10" />
+                                                <TextBlock Text=" Change Marker" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Stroke="OrangeRed"  Fill="OrangeRed" Width="10" Height="10" />
+                                                <TextBlock Text=" Calibration Marker" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button IsEnabled="{Binding FeaturesEnabled}" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <cal:ActionMessage MethodName="ExportChart">
+                                                        <cal:Parameter Value="{Binding ElementName=MainChart}" />
+                                                    </cal:ActionMessage>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="/B3;component/Images/export_graph.png" Width="32" Height="32" VerticalAlignment="Center" />
+                                                <TextBlock Text="Export Graph" VerticalAlignment="Center" Margin="5" />
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </Grid>
+                </models:CustomTabItem>
+                <models:CustomTabItem Header="Values">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="WasSelected">
+                            <cal:ActionMessage MethodName="DisableGraph" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="140" />
+                        </Grid.RowDefinitions>
+                        <WrapPanel HorizontalAlignment="Right">
+                            <CheckBox Content="View All Sensors" Margin="5" IsEnabled="{Binding FeaturesEnabled}" IsChecked="{Binding ViewAllSensors,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                        </WrapPanel>
+                        <models:CustomDataGrid Grid.Row="1" ItemsSource="{Binding DataTable}" CanUserDeleteRows="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" SelectionUnit="Cell" AlternationCount="2" cal:Message.Attach="[Event DeleteRequested] = [Action DeleteRequestedFromDataTable($eventArgs)];[Event SelectedCellsChanged] = [Action SelectedCellsChanged($eventArgs)]">
+                            <models:CustomDataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="DataGridCell.Foreground">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource cellForegroundConverter}" >
+                                                <MultiBinding.Bindings>
+                                                    <Binding RelativeSource="{RelativeSource Self}"/>
+                                                    <Binding Path="Row" Mode="OneWay"/>
+                                                </MultiBinding.Bindings>
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </models:CustomDataGrid.CellStyle>
+                        </models:CustomDataGrid>
+                        <GroupBox Grid.Row="2" Header="Summary Statistics" BorderBrush="OrangeRed">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <DataGrid Grid.Row="0" ItemsSource="{Binding SummaryStatistics}" IsReadOnly="True" Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightGray" AlternationCount="2" />
+                                <WrapPanel Grid.Row="1" HorizontalAlignment="Right">
+                                    <TextBlock Text="Total Data Point Count:" Margin="5,0" />
+                                    <TextBlock Text="{Binding TotalDataCount}" />
+                                </WrapPanel>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </models:CustomTabItem>
+            </TabControl>
+        </Grid>
+        <Grid Grid.Row="2" x:Name="BottomBar">
+            <StackPanel x:Name="ProgressSection" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding ProgressAreaVisibility}">
+                <TextBlock Text="{Binding WaitEventString}" Margin="0,0,5,0" />
+                <ProgressBar Width="100" Minimum="0" Maximum="100" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
