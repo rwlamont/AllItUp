@@ -5,7 +5,8 @@ It gives a visual and guided approach to QAQC allowing for quick and easy qualit
 
 Developed By:
 
-Richard LamontLuke Barnett
+Richard Lamont
+Luke Barnett
 Chris McBride
 Steven McTainsh
 Kerry Arts
