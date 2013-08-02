@@ -43,6 +43,7 @@ namespace IndiaTango.Models
         private string _sensorType;
         private string _sensorTypeAbrev;
         private ObservableCollection<SensorMetaData> _metaData;
+        private ObservableCollection<string> _positionList;
         private SensorMetaData _currentMetaData;
         private string _hash;
         private int _sortIndex;
@@ -774,7 +775,7 @@ namespace IndiaTango.Models
         public void Undo(DateTime dateTime)
         {
             var sensor = (from selectedSensor in UndoStack where selectedSensor.EditTimestamp == dateTime select selectedSensor).DefaultIfEmpty(null).FirstOrDefault();
-
+            
             if (sensor != null)
             {
                 // Exists
@@ -866,6 +867,37 @@ namespace IndiaTango.Models
         public ObservableCollection<string> Units
         {
             get { return UnitsHelper.Units; }
+        }
+
+        /// <summary>
+        /// The abreviations options for the sensor
+        /// </summary>
+        public ObservableCollection<string> Abrevs
+        {
+            get { return AbrevsHelper.Abrevs; }
+        }
+
+        /// <summary>
+        /// The position options for the sensor
+        /// </summary>
+        public ObservableCollection<string> PositionList
+        {
+
+            get{
+
+            if(_positionList == null)
+            {
+                    var list = new List<string>();
+                    list.Add("d");
+                    list.Add("h");
+                    list.Add("e");
+                    list.Add("m");
+                    list.Add("v");
+                    _positionList = new ObservableCollection<string>(list);
+            }
+                    return _positionList;
+                }
+            
         }
 
         /// <summary>

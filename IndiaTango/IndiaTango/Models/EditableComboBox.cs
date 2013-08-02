@@ -50,6 +50,10 @@ namespace IndiaTango.Models
             {
                 SensorVocabulary.Add(Text);
             }
+            else if (String.CompareOrdinal(Helper, "Abrevs") == 0)
+            {
+                AbrevsHelper.Add(Text);
+            }
         }
     }
 }

@@ -3346,7 +3346,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => HighestYearLoaded);
                 NotifyOfPropertyChange(() => LowestYearLoadedOptions);
                 NotifyOfPropertyChange(() => HighestYearLoadedOptions);
-                var message = string.Format("Loaded in {0} to {1}", LowestYearLoaded, HighestYearLoaded);
+                var message = string.Format("Loaded in {0} to {1}", LowestYearLoaded, HighestYearLoaded); // took out HighestYearLoaded
                 if (CurrentDataset != null && CurrentDataset.LowestYearLoaded != 0)
                     message +=
                         string.Format("\r\n\nThere are additional year(s) prior to {0} of data that are available for selection", LowestYearLoaded);

@@ -120,7 +120,7 @@ namespace IndiaTango.Models
             {
                 throw new Exception("Cannot Overwrite Existing Data");
             }
-            filePath = Path.ChangeExtension(filePath, format.Extension);
+            //filePath = Path.ChangeExtension(filePath, format.Extension);
             string metaDataFilePath = filePath + " Site Meta Data.txt";
             string changeMatrixFilePath = filePath + " Changes Matrix.csv";
             var changesFilePath = filePath + " Changes Log.txt";
@@ -422,10 +422,37 @@ namespace IndiaTango.Models
             return (int)Math.Floor(currentDate.Subtract(startDate).TotalMinutes / data.DataInterval / numOfPointsToAverage);
         }
 
+        /// <summary>
+        /// Creates the header in the gleon format for a given sensor s. If the abrevitaion/sensortype is not set
+        /// sends it out with the orginal header
+        /// </summary>
+        /// <param name="s">the sensor we want to construct the header for</param>
+        /// <returns></returns>
         private static string ConstructHeader(Sensor s)
         {
-            string toReturn = s.SensorTypeAbrev + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+            string toReturn;
+            if (s.SensorTypeAbrev != null) //Checks to see if there is a abreviation added, if there isnt exports the name
+            {
+                toReturn = s.SensorTypeAbrev + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+            }
+            else if (s.SensorType != "")
+            {
+                ParameterFull abrevIn;
+                if (Enum.TryParse(s.SensorType, out abrevIn))
+                {
 
+                    s.SensorTypeAbrev = ParameterValues.getAbrev(abrevIn);
+                    toReturn = s.SensorTypeAbrev + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                }
+                else
+                {
+                    toReturn = s.Name + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                }
+            }
+            else
+            {
+                toReturn = s.Name + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+            }
             return toReturn;
         }
     }

@@ -123,7 +123,7 @@
                             <DataGridTemplateColumn Header="Parameter" CanUserSort="True" SortMemberPath="Sensor.SensorType">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.SensorType}" Margin="2,0" />
+                                        <TextBlock Text="{Binding Sensor.SensorType}" Margin="2,0" ToolTipService.ToolTip="Full Name of Parameter" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
@@ -135,19 +135,19 @@
                             <DataGridTemplateColumn Header="Parameter (Abbreviation)" CanUserSort="True" SortMemberPath="Sensor.SensorType">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.SensorTypeAbrev}" Margin="2,0" />
+                                        <TextBlock Text="{Binding Sensor.SensorTypeAbrev}" Margin="2,0" ToolTipService.ToolTip="GLEON abreviation of sensor name" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
                                     <DataTemplate>
-                                        <models:EditableComboBox Helper="SensorVocabulary" ItemsSource="{Binding Sensor.SensorVocabulary}" IsEditable="True" SelectedItem="{Binding Sensor.SensorType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                        <models:EditableComboBox Helper="AbrevHelper" ItemsSource="{Binding Sensor.Abrevs}" IsEditable="True" SelectedItem="{Binding Sensor.SensorTypeAbrev,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Unit" CanUserSort="True" SortMemberPath="Sensor.Unit">
+                            <DataGridTemplateColumn Header="Unit" CanUserSort="True" SortMemberPath="Sensor.Unit" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.Unit}" Margin="2,0" />
+                                        <TextBlock Text="{Binding Sensor.Unit}" Margin="2,0" ToolTipService.ToolTip="Sensor Unit"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
@@ -159,12 +159,12 @@
                             <DataGridTemplateColumn Header="Position" CanUserSort="True" SortMemberPath="Sensor.Position">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Sensor.Position}" Margin="2,0" />
+                                        <TextBlock Text="{Binding Sensor.Position}" Margin="2,0" ToolTipService.ToolTip= "d = depth below lake surface in meters&#xa; h = height above lake surface in meters&#xa; e = elevation above lake bottom (at buoy site) in meters&#xa; m = meters above sea level (masl)&#xa; v = variable depth as indicated by column 'Depth_v(m)' (for profiling systems, pp not required)"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
                                     <DataTemplate>
-                                        <models:EditableComboBox Helper="Units" ItemsSource="{Binding Sensor.Units}" IsEditable="True" SelectedItem="{Binding Sensor.Unit,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                        <models:EditableComboBox Helper="Units" ItemsSource="{Binding Sensor.PositionList}" IsEditable="True" SelectedItem="{Binding Sensor.Position,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>

@@ -104,7 +104,7 @@ namespace IndiaTango.ViewModels
         public void btnExport()
         {
             var dialog = new SaveFileDialog();
-            dialog.Filter = ExportFormat.TSV.FilterText; // Add in surrport for gln in the file format
+            dialog.Filter = ExportFormat.TSV.FilterText + "|" + ExportFormat.GLN.FilterText; // Add in surrport for gln in the file format
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
