@@ -431,27 +431,28 @@ namespace IndiaTango.Models
         private static string ConstructHeader(Sensor s)
         {
             string toReturn;
-            if (s.SensorTypeAbrev != null) //Checks to see if there is a abreviation added, if there isnt exports the name
+            string position = ParameterValues.getAbrevPosition(s.Position);
+            if (!String.IsNullOrWhiteSpace(s.SensorTypeAbrev)) //Checks to see if there is a abreviation added, if there isnt exports the name
             {
-                toReturn = s.SensorTypeAbrev + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                toReturn = s.SensorTypeAbrev + "_" + position + s.Location + "(" + s.Unit + ")";
             }
-            else if (s.SensorType != "")
+            else if (!String.IsNullOrWhiteSpace(s.SensorType))
             {
                 ParameterFull abrevIn;
                 if (Enum.TryParse(s.SensorType, out abrevIn))
                 {
 
                     s.SensorTypeAbrev = ParameterValues.getAbrev(abrevIn);
-                    toReturn = s.SensorTypeAbrev + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                    toReturn = s.SensorTypeAbrev + "_" + position + s.Location + "(" + s.Unit + ")";
                 }
                 else
                 {
-                    toReturn = s.Name + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                    toReturn = s.Name + "_" + position + s.Location + "(" + s.Unit + ")";
                 }
             }
             else
             {
-                toReturn = s.Name + "_" + s.Position + s.Location + "(" + s.Unit + ")";
+                toReturn = s.Name + "_" + position + s.Location + "(" + s.Unit + ")";
             }
             return toReturn;
         }

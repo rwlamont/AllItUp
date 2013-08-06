@@ -8,7 +8,7 @@ using System.Text;
 namespace IndiaTango.Models
 {
     /// <summary>
-    /// Helper class for retrieving the units
+    /// Helper class for retrieving the abreviations
     /// </summary>
     public static class AbrevsHelper
     {

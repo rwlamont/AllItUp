@@ -126,7 +126,7 @@ namespace IndiaTango.Models
 
                                         sensorIndexers.Last().Sensor.SensorTypeAbrev = hdrSplit[0];
                                         sensorIndexers.Last().Sensor.Location = hdrSplitTwo[0];
-                                        sensorIndexers.Last().Sensor.Position = sen;
+                                        sensorIndexers.Last().Sensor.Position = ParameterValues.getFullPosition(sen);
                                         float elev;
                                         if (float.TryParse(hdrSplitTwo[0], out elev))
                                         {
@@ -472,6 +472,57 @@ namespace IndiaTango.Models
     /// </summary>
     public class ParameterValues
     {
+        public static string getFullPosition(string input)
+        {
+            string toReturn = "";
+            switch (input)
+            {
+                case "d":
+                    toReturn = "Depth";
+                    break;
+                case "e":
+                    toReturn = "Elevation";
+                    break;
+                case "v":
+                    toReturn = "Variable";
+                    break;
+                case "m":
+                    toReturn = "MASL";
+                    break;
+                case "h":
+                    toReturn = "Height";
+                    break;
+
+
+            }
+            return toReturn;
+        }
+
+        public static string getAbrevPosition(string input)
+        {
+            string toReturn = "";
+            switch (input)
+            {
+                case "Depth":
+                    toReturn = "d";
+                    break;
+                case "Elevation":
+                    toReturn = "e";
+                    break;
+                case "Variable":
+                    toReturn = "v";
+                    break;
+                case "MASL":
+                    toReturn = "m";
+                    break;
+                case "Height":
+                    toReturn = "h";
+                    break;
+
+            }
+            return toReturn;
+        }
+
         /// <summary>
         /// g   iven a abreviation returns a full parameter name
         /// </summary>

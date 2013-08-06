@@ -168,7 +168,14 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Location" Binding="{Binding Sensor.Location}" />
+                            <DataGridTextColumn Header="Location (m)" Binding="{Binding Sensor.Location}">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="ToolTipService.ToolTip"
+                                                Value="Physical Location In Meters of the sensor" />
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                            </DataGridTextColumn>
                             <DataGridTextColumn Header="Accuracy (+/-)" Binding="{Binding Sensor.CurrentMetaData.Accuracy, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Lower Limit" Binding="{Binding Sensor.LowerLimit, Converter={StaticResource floatStringConverter}}" />
                             <DataGridTextColumn Header="Upper Limit" Binding="{Binding Sensor.UpperLimit, Converter={StaticResource floatStringConverter}}" />

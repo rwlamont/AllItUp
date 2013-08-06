@@ -888,11 +888,11 @@ namespace IndiaTango.Models
             if(_positionList == null)
             {
                     var list = new List<string>();
-                    list.Add("d");
-                    list.Add("h");
-                    list.Add("e");
-                    list.Add("m");
-                    list.Add("v");
+                    list.Add("Depth");
+                    list.Add("Height");
+                    list.Add("Elevation");
+                    list.Add("MASL");
+                    list.Add("Variable");
                     _positionList = new ObservableCollection<string>(list);
             }
                     return _positionList;
