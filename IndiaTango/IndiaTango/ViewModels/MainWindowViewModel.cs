@@ -3787,7 +3787,7 @@ namespace IndiaTango.ViewModels
         }
 
         /// <summary>
-        /// Shows the settings view
+        /// Shows the settings viwewww
         /// </summary>
         public void ShowSettings()
         {

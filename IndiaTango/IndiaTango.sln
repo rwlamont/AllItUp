@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndiaTango", "IndiaTango\IndiaTango.csproj", "{401C1F1F-75CD-4859-8C7D-ED391AC3419D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IndiaTango.Tests", "IndiaTango.Tests\IndiaTango.Tests.csproj", "{80C4DE8E-13C2-4212-80C2-6C3CDF05FE71}"
