@@ -278,8 +278,8 @@ namespace IndiaTango.Models
                     if (includeEmptyLines || line.Length != data.Sensors.Count)
                     {
                         line = dateColumnFormat.Equals(DateColumnFormat.OneDateColumn)
-                                ? rowDate.ToString("yyyy/MM/dd HH:mm") + line
-                                : rowDate.ToString("yyyy/MM/dd") + del + rowDate.ToString("HH:mm") + line;
+                                ? rowDate.ToString("yyyy-MM-dd HH:mm") + line
+                                : rowDate.ToString("yyyy-MM-dd") + del + rowDate.ToString("HH:mm") + line;
                         
                         writer.WriteLine(line);
                     }
@@ -314,8 +314,8 @@ namespace IndiaTango.Models
                 for (var time = data.StartTimeStamp; time <= data.EndTimeStamp; time = time.AddMinutes(data.DataInterval))
                 {
                     line = dateColumnFormat.Equals(DateColumnFormat.OneDateColumn)
-                            ? time.ToString("yyyy/MM/dd HH:mm") + ','
-                            : time.ToString("yyyy/MM/dd") + ',' + time.ToString("HH:mm") + ',';
+                            ? time.ToString("yyyy-MM-dd HH:mm") + ','
+                            : time.ToString("yyyy-MM-dd") + ',' + time.ToString("HH:mm") + ',';
                     foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
                         LinkedList<int> vals;
@@ -353,13 +353,11 @@ namespace IndiaTango.Models
         {
             using (StreamWriter writer = File.CreateText(metaDataFilePath))
             {
-                writer.WriteLine("Site details for file: " + Path.GetFileName(filePath));
-                writer.WriteLine("ID: " + data.Site.Id);
-                writer.WriteLine("Name: " + data.Site.Name);
+                writer.WriteLine("Associated File:: " + Path.GetFileName(filePath));
+                writer.WriteLine("Site Name: " + data.Site.Name);
                 writer.WriteLine("Owner: " + data.Site.Owner);
                 writer.WriteLine("GPS: " + data.Site.GpsLocation);
-                writer.WriteLine("Site notes:\r\n\t" + data.Site.SiteNotes);
-                writer.WriteLine("Editing notes:" + data.Site.EditingNotes);
+
 
                 if (data.Site.PrimaryContact != null)
                 {
@@ -371,44 +369,33 @@ namespace IndiaTango.Models
                     writer.WriteLine("\tEmail: " + data.Site.PrimaryContact.Email);
                 }
 
-                if (data.Site.SecondaryContact != null)
-                {
-                    writer.WriteLine("Secondary Contact:");
-                    writer.WriteLine("\tName: " + data.Site.SecondaryContact.FirstName + " " +
-                                     data.Site.SecondaryContact.LastName);
-                    writer.WriteLine("\tBusiness: " + data.Site.SecondaryContact.Business);
-                    writer.WriteLine("\tPhone: " + data.Site.SecondaryContact.Phone);
-                    writer.WriteLine("\tEmail: " + data.Site.SecondaryContact.Email);
-                }
+                writer.WriteLine("Number of Sensors: " + data.Sensors.Count); 
 
                 if (data.Sensors != null && data.Sensors.Count > 0)
                 {
-                    writer.WriteLine("Series:");
                     foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
-                        writer.WriteLine("\t" + sensor.Name);
-                        writer.WriteLine("\t\tDescription: " + sensor.Description);
-                        writer.WriteLine("\t\tSensor Type: " + sensor.SensorType);
-                        writer.WriteLine("\t\tUnit: " + sensor.Unit);
-                        writer.WriteLine("\t\tDepth (m): " + sensor.Elevation);
-                        writer.WriteLine("\t\tSensors:");
+                        writer.WriteLine(ConstructHeader(sensor));
+                        writer.WriteLine("Description: " + sensor.Description);
                         foreach (var metaData in sensor.MetaData)
                         {
-                            writer.WriteLine("\t\t\tSerial Number: " + metaData.SerialNumber);
-                            writer.WriteLine("\t\t\tManufacturer: " + metaData.Manufacturer);
-                            writer.WriteLine("\t\t\tAccuracy: " + metaData.Accuracy);
-                            writer.WriteLine("\t\t\tDate of Installation: " + metaData.DateOfInstallation);
-                            writer.WriteLine("\t\tIdeal Calibration Frequency (Days): " + metaData.IdealCalibrationFrequency.Days);
+                            writer.WriteLine("Serial Number: " + metaData.SerialNumber);
+                            writer.WriteLine("Manufacturer: " + metaData.Manufacturer);
+                            writer.WriteLine("Date Installed: " + metaData.DateOfInstallation);
+                            writer.WriteLine("Calibration Frequency (Days): " + metaData.IdealCalibrationFrequency.Days);
                         }
-                        writer.WriteLine("\t\tCalibrations:");
+                        writer.WriteLine("Calibrations:");
                         foreach (var calibration in sensor.Calibrations)
                         {
-                            writer.WriteLine("\t\t\t" + calibration);
+                            writer.WriteLine(calibration);
                         }
-
+                        writer.WriteLine();
                     }
                 }
-
+                writer.WriteLine("DataSet notes:\r\n\t" + data.Site.EditingNotes);
+                writer.WriteLine();
+                writer.WriteLine("Site notes:\r\n\t" + data.Site.SiteNotes);
+                
                 Debug.WriteLine(metaDataFilePath);
                 writer.Close();
             }
@@ -529,9 +516,9 @@ namespace IndiaTango.Models
 
         public string Name { get { return _name; } }
 
-        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (YYYY/MM/DD | hh:mm)"); } }
+        public static DateColumnFormat TwoDateColumn { get { return new DateColumnFormat("Two Column", "Two date and time columns (YYYY-MM-DD | hh:mm)"); } }
 
-        public static DateColumnFormat OneDateColumn { get { return new DateColumnFormat("One Column", "A singular date and time column (YYYY/MM/DD hh:mm)"); } }
+        public static DateColumnFormat OneDateColumn { get { return new DateColumnFormat("One Column", "A singular date and time column (YYYY-MM-DD hh:mm)"); } }
 
         #endregion
 

@@ -3606,6 +3606,7 @@ namespace IndiaTango.ViewModels
 
             view.Sensor = sensor;
             _windowManager.ShowWindow(view);
+           
         }
 
         /// <summary>
@@ -3647,7 +3648,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// Plots the density calcualations for the site
         /// </summary>
-        public void PlotDensity()
+        public void PlotDensity()  
         {
             _sensorsToGraph.Clear();
 

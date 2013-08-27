@@ -62,6 +62,8 @@ namespace IndiaTango.Models
 
         public static DataTable GenerateSummaryStatistics(IEnumerable<Sensor> sensorsToGenerateFrom, DateTime startTime, DateTime endTime)
         {
+            CultureInfo myCI = new CultureInfo("en-US", false);
+            myCI.DateTimeFormat.DateSeparator = "-";
             var sensors = sensorsToGenerateFrom.Distinct(new SensorNameEqualityComparer()).OrderBy(x => x.Name).ToArray();
 
             if (sensors.Length == 0)
@@ -97,12 +99,12 @@ namespace IndiaTango.Models
 
                 var startDate = orderedTimeStamps.FirstOrDefault();
                 startDateRow[i + 1] = startDate != DateTime.MinValue
-                                          ? startDate.ToString(CultureInfo.InvariantCulture)
+                                          ? startDate.ToString(myCI)
                                           : "No Data";
 
                 var endDate = orderedTimeStamps.LastOrDefault();
                 endDateRow[i + 1] = endDate != DateTime.MinValue
-                                          ? endDate.ToString(CultureInfo.InvariantCulture)
+                                          ? endDate.ToString(myCI)
                                           : "No Data";
             }
 

@@ -16,7 +16,7 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            return Time.ToString("yyyy/MM/dd hh:mm");
+            return Time.ToString("yyyy-MM-dd hh:mm");
         }
     }
 }
