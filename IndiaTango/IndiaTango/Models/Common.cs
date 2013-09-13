@@ -256,13 +256,6 @@ namespace IndiaTango.Models
             if (delegatedBackgroundWorker == null)
                 delegatedBackgroundWorker = new BackgroundWorker();
 
-            /*if (string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
-            {
-                var saveFileDialog = new SaveFileDialog { Filter = "Site Files|*.b3" };
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    sessionToSave.SaveLocation = saveFileDialog.FileName;
-            }*/
-
             if (!string.IsNullOrWhiteSpace(sessionToSave.SaveLocation))
             {
                 delegatedBackgroundWorker.DoWork += (o, e) =>

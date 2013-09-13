@@ -16,7 +16,7 @@ namespace IndiaTango.ViewModels
 
         public string Developers
         {
-            get { return "Luke Barnett, Chris McBride, Steven McTanish, Kerry Arts, Michael Baumberger"; }
+            get { return "Richard Lamont, Luke Barnett, Chris McBride, Steven McTanish, Kerry Arts, Michael Baumberger"; }
         }
 
         public string Title
