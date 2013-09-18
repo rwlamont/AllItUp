@@ -124,7 +124,7 @@ namespace IndiaTango.Models
             if (threadName.Contains("IndiaTango."))
                 threadName = threadName.Substring("IndiaTango.".Length);
 
-            string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + eventDetails;
+            string logString = DateTime.Now.ToString(TimeFormatString) + "    " + logType.PadRight(10).Substring(0, 10) + " " + threadName.PadRight(25).Substring(0, 25) + " " + UserHelper.CurrentUser.PadRight(10).Substring(0,10) + "  " + eventDetails;
 
             WriteLogToFile(logString, destFile);
 

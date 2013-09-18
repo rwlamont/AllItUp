@@ -210,6 +210,7 @@ namespace IndiaTango.ViewModels
         private string _waitText;
         #endregion
         private string _title = "B3";
+        private string _user;
         #region Chart
         private List<LineSeries> _chartSeries;
         private BehaviourManager _behaviour;
@@ -385,6 +386,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public List <string> AllUsers
+        {
+
+            get
+            {
+                var userList = new List<string>(UserHelper.Users.ToArray());
+                return userList;
+            }
+        }
+
         /// <summary>
         /// The currently selected site index
         /// </summary>
@@ -472,6 +483,10 @@ namespace IndiaTango.ViewModels
             set { _title = value; NotifyOfPropertyChange(() => Title); }
         }
 
+        public string CurrentUser
+        {
+            get { return UserHelper.ShowCurrentUser; }
+        }
         /// <summary>
         /// The Sensors for the currently selected dataset
         /// </summary>
@@ -487,6 +502,7 @@ namespace IndiaTango.ViewModels
         {
             get { return _graphableSensors ?? (_graphableSensors = (from sensor in Sensors select new GraphableSensor(sensor)).ToList()); }
         }
+
 
         #region Charting
 
@@ -2859,7 +2875,7 @@ namespace IndiaTango.ViewModels
 
             var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
 
-            var openFileDialog = new OpenFileDialog { Filter = @"All B3 Data Files|*.csv;*.tsv;*.gln|CSV Files|*.csv|TSV Files|*.tsv|GLEON files|*.gln" };
+            var openFileDialog = new OpenFileDialog { Filter = @"All B3 Data Files|*.csv;*.txt;*.gln|CSV Files|*.csv|TSV Files|*.txt|GLEON files|*.gln" };
 
             if (openFileDialog.ShowDialog() != DialogResult.OK)
                 return;
@@ -2927,7 +2943,7 @@ namespace IndiaTango.ViewModels
                                                  askUser.ComboBoxItems = new List<string> { "Keep old values", "Keep new values" };
                                                  askUser.Text = "Keep old values";
                                                  askUser.ShowComboBox = true;
-                                                 askUser.Message = "How do you want to handle overlapping points";
+                                                 askUser.Message = "How do you want to handle overlapping points. Note this will also overwrite empty or missing values within the overlaping period";
                                                  askUser.CanEditComboBox = false;
                                                  askUser.ComboBoxSelectedIndex = 0;
                                                  askUser.Title = "Importing";
@@ -3513,6 +3529,65 @@ namespace IndiaTango.ViewModels
             _selectedMethod.IsEnabled = false;
         }
 
+        public void ShowUser()
+        {
+            System.Windows.Forms.MessageBox.Show(UserHelper.CurrentUser);
+            UserHelper.SaveUsers();
+
+        }
+
+        public void AddUser()
+        {
+            var askUser =
+                _container.GetInstance(typeof(SpecifyValueViewModel),
+                                       "SpecifyValueViewModel") as
+                SpecifyValueViewModel;
+
+            if (askUser == null)
+            {
+                Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
+                                      false, true);
+                return;
+            }
+
+            
+            askUser.ShowComboBox = false;
+            askUser.Message = "Please Enter Your Desired Username";
+            askUser.Title = "Add New User";
+
+            _windowManager.ShowDialog(askUser);
+            var user = askUser.Text;
+            UserHelper.Add(user);
+
+        }
+
+        public void ChangeUser()
+        {
+            var askUser =
+                _container.GetInstance(typeof(SpecifyValueViewModel),
+                                       "SpecifyValueViewModel") as
+                SpecifyValueViewModel;
+
+            if (askUser == null)
+            {
+                Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
+                                      false, true);
+                return;
+            }
+
+            askUser.ComboBoxItems = AllUsers;
+            askUser.Text = "Please select your username";
+            askUser.ShowComboBox = true;
+            askUser.Message = "Please select your username from the dropdown box, or go back to the main screen to create a new user";
+            askUser.CanEditComboBox = false;
+            askUser.ComboBoxSelectedIndex = 0;
+            askUser.Title = "User Selection";
+
+            _windowManager.ShowDialog(askUser);
+            var user = askUser.ComboBoxSelectedIndex;
+            UserHelper.ChangeCurrent(user);
+            
+        }
         /// <summary>
         /// Reverts sensors to raw values
         /// </summary>

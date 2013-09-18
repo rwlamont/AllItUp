@@ -161,15 +161,27 @@ namespace IndiaTango.Models
                 if (!Directory.Exists(destinationPath))
                     Directory.CreateDirectory(destinationPath);
 
-                //Now Create all of the directories
-                foreach (string dirPath in Directory.GetDirectories(sourcePath, "*",
-                    SearchOption.AllDirectories))
-                    Directory.CreateDirectory(dirPath.Replace(sourcePath, destinationPath));
-
-                //Copy all the files
+           
+            using (TextWriter tw = new StreamWriter(changesFilePath, true))
+            {
+                //Copy all the files into one File Log
                 foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
                     SearchOption.AllDirectories))
-                    File.Copy(newPath, newPath.Replace(sourcePath, destinationPath));
+                {
+                    tw.WriteLine("");
+                    tw.WriteLine("");
+                    using (TextReader tr = new StreamReader(newPath))
+                    {
+                        tw.WriteLine(tr.ReadToEnd());
+                        tr.Close();
+                    }
+
+                    Console.WriteLine("File Processed : " + filePath);
+                }
+
+                tw.Close();
+           }
+       
             }
 
             if (loadInUnloadedValues)
@@ -468,9 +480,9 @@ namespace IndiaTango.Models
 
         public string FilterText { get { return ToString() + "|*" + _extension; } }
 
-        public static ExportFormat CSV { get { return new ExportFormat(".tsv", "Comma Seperated Value File"); } }
+        public static ExportFormat CSV { get { return new ExportFormat(".txt", "Comma Seperated Value File"); } }
 
-        public static ExportFormat TSV { get { return new ExportFormat(".tsv", "Tab Seperated Value File"); } }
+        public static ExportFormat TSV { get { return new ExportFormat(".txt", "Tab Seperated Value File"); } }
 
         public static ExportFormat GLN { get { return new ExportFormat(".gln", "Tab Deliminated GLN File"); } }
 

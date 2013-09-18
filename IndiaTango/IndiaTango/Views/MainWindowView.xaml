@@ -55,6 +55,11 @@
             <MenuItem Header="_Sensors">
                 <MenuItem Header="_Revert to raw" cal:Message.Attach="[Event Click] = [Action RevertToRaw]" />
             </MenuItem>
+            <MenuItem Header="_Users">
+                <MenuItem Header="_Show Current User" cal:Message.Attach="[Event Click] = [Action ShowUser]" />
+                <MenuItem Header="_Add New User" cal:Message.Attach="[Event Click] = [Action AddUser]" />
+                <MenuItem Header="_Change Current User" cal:Message.Attach="[Event Click] = [Action ShowUser]" />
+            </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
             </MenuItem>
@@ -297,10 +302,12 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30" />
+                                <RowDefinition Height="30" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
-                            <Grid Grid.Row="1">
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentUser}" VerticalAlignment="Center" FontWeight="Bold" />
+                            <TextBlock Grid.Row="1" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
+                            <Grid Grid.Row="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="25" />
                                     <RowDefinition Height="35" />
@@ -475,7 +482,7 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="165" />
                             </Grid.RowDefinitions>
-                            <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Grid.Row="0" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}">
+                            <charts:Chart x:Name="MainChart" Title="{Binding ChartTitle}" Behaviour="{Binding Behaviour}" multiseries:MultiSeries.Source="{Binding ChartSeries}" Margin="15,5,-15,160" Grid.RowSpan="2">
                                 <charts:Chart.YAxis>
                                     <charts:LinearAxis Title="{Binding YAxisTitle}" Range="{Binding Range, UpdateSourceTrigger=PropertyChanged}" />
                                 </charts:Chart.YAxis>

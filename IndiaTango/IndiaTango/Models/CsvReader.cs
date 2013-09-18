@@ -14,30 +14,27 @@ namespace IndiaTango.Models
     {
         private readonly string _filename;
         private readonly char _delimitChar;
-        private readonly bool _transferModeGLEON; // Sets wether the files headers are in the GLEON format or not
         private Sensor[] _sensors;
         public event ReaderProgressChanged ProgressChanged;
         
         public CSVReader(string fileName)
         {
-            if (!fileName.EndsWith(".csv") && !fileName.EndsWith(".gln") && !fileName.EndsWith(".tsv"))
-               throw new ArgumentException("Can't tell if this is a csv/ tsv (filetype not .csv/.tsv)");
+            if (!fileName.EndsWith(".csv") && !fileName.EndsWith(".gln") && !fileName.EndsWith(".txt"))
+               throw new ArgumentException("Can't tell if this is a csv/ tsv (filetype not .csv/.txt)");
 
             //Series of if statments to work out the delimiting character
             if(fileName.EndsWith(".csv"))
             {
                 _delimitChar = ',';
             }
-            if(fileName.EndsWith(".tsv"))
+            if(fileName.EndsWith(".txt"))
             {
                 _delimitChar = '\t';
-                _transferModeGLEON = true;
-            }
+                            }
             if (fileName.EndsWith(".gln"))
             {
                 _delimitChar = '\t';
-                _transferModeGLEON = true;
-
+                
             }
             if (!File.Exists(fileName))
                 throw new ArgumentException("File wasn't found");
