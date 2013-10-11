@@ -42,7 +42,7 @@ namespace IndiaTango.Models
 
         public override string ToString()
         {
-            return string.Format("Calibration: {0} Pre: [{1} - {2} - {3}] Post: [{4} - {5} - {6}] [Point1 - Point2 - Point3]", TimeStamp.ToString("yyyy/MM/dd"), PreCalibrationPoint1, PreCalibrationPoint2, PreCalibrationPoint3, PostCalibrationPoint1, PostCalibrationPoint2, PostCalibrationPoint3);
+            return string.Format("Calibration: {0} Pre: [{1}-{2}-{3}],Post: [{4}-{5}-{6}] [Point1 - Point2 - Point3]", TimeStamp.ToString("yyyy/MM/dd"), PreCalibrationPoint1, PreCalibrationPoint2, PreCalibrationPoint3, PostCalibrationPoint1, PostCalibrationPoint2, PostCalibrationPoint3);
         }
     }
 }

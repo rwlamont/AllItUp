@@ -121,9 +121,9 @@ namespace IndiaTango.Models
                 throw new Exception("Cannot Overwrite Existing Data");
             }
             //filePath = Path.ChangeExtension(filePath, format.Extension);
-            string metaDataFilePath = filePath + " Site Meta Data.txt";
-            string changeMatrixFilePath = filePath + " Changes Matrix.csv";
-            var changesFilePath = filePath + " Changes Log.txt";
+            string metaDataFilePath = Path.ChangeExtension(filePath, "_") + "Metadata.txt";
+            string changeMatrixFilePath = Path.ChangeExtension(filePath, "_") + "ChangesMatrix.txt";
+            var changesFilePath = Path.ChangeExtension(filePath, "_") + "Changes Log.txt";
             var numOfPointsToSummarise = 1;
 
             if (exportedPoints.NumberOfMinutes != 0)
@@ -134,7 +134,7 @@ namespace IndiaTango.Models
                 ExportCSV(data, filePath, includeEmptyLines, dateColumnFormat, false, numOfPointsToSummarise);
 
                 if (exportRaw)
-                    ExportCSV(data, filePath + " Raw.csv", includeEmptyLines, dateColumnFormat, true, numOfPointsToSummarise);
+                    ExportCSV(data, Path.ChangeExtension(filePath, "_") + "Raw.txt", includeEmptyLines, dateColumnFormat, true, numOfPointsToSummarise);
 
                 if (addMetaDataFile && data.Site != null)
                     ExportMetaData(data, filePath, metaDataFilePath);
@@ -156,25 +156,24 @@ namespace IndiaTango.Models
             if (copyLogFiles && data.Site != null && Directory.Exists(Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs")))
             {
                 var sourcePath = Path.Combine(Common.AppDataPath, "Logs", data.Site.Name, "SensorLogs");
-                var destinationPath = Path.Combine(Path.GetDirectoryName(filePath), data.Site.Name + " Sensor Logs");
-
-                if (!Directory.Exists(destinationPath))
-                    Directory.CreateDirectory(destinationPath);
-
-           
+  
             using (TextWriter tw = new StreamWriter(changesFilePath, true))
             {
+                tw.WriteLine("Log of change reasons for associated file" + Path.GetFileNameWithoutExtension(filePath));
                 //Copy all the files into one File Log
                 foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
                     SearchOption.AllDirectories))
                 {
                     tw.WriteLine("");
+                    tw.WriteLine("Change reasons for sensor " + Path.GetFileNameWithoutExtension(newPath));
                     tw.WriteLine("");
+                    
                     using (TextReader tr = new StreamReader(newPath))
                     {
                         tw.WriteLine(tr.ReadToEnd());
                         tr.Close();
                     }
+                    
 
                     Console.WriteLine("File Processed : " + filePath);
                 }
@@ -317,26 +316,42 @@ namespace IndiaTango.Models
             using (var writer = File.CreateText(changeMatrixFilePath))
             {
                 writer.WriteLine("Change matrix for file: " + Path.GetFileName(filePath));
+                writer.WriteLine("Cell format: QA/QC value [Raw value] (Change reason number)");
                 var line = dateColumnFormat.Equals(DateColumnFormat.OneDateColumn)
-                               ? "Day,Month,Year,Hours,Minutes" + ','
-                               : "Date,Time" + ',';
-                line = data.Sensors.OrderBy(x => x.SortIndex).Aggregate(line, (current, sensor) => current + (sensor.Name + ","));
+                               ? "Day,Month,Year,Hours,Minutes" + '\t'
+                               : "Date,Time" + '\t';
+                line = data.Sensors.OrderBy(x => x.SortIndex).Aggregate(line, (current, sensor) => current + (sensor.Name + "\t"));
                 line = line.Remove(line.Count() - 2);
                 writer.WriteLine(line);
                 for (var time = data.StartTimeStamp; time <= data.EndTimeStamp; time = time.AddMinutes(data.DataInterval))
                 {
                     line = dateColumnFormat.Equals(DateColumnFormat.OneDateColumn)
-                            ? time.ToString("yyyy-MM-dd HH:mm") + ','
-                            : time.ToString("yyyy-MM-dd") + ',' + time.ToString("HH:mm") + ',';
+                            ? time.ToString("yyyy-MM-dd HH:mm") + '\t'
+                            : time.ToString("yyyy-MM-dd") + '\t' + time.ToString("HH:mm") + '\t';
                     foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
                         LinkedList<int> vals;
+                        float valsRaw;
+                        float currentValue;
+
                         if (sensor.CurrentState.Changes.TryGetValue(time, out vals))
                         {
-                            changesUsed.AddRange(vals.Where(x => !changesUsed.Contains(x)));
-                            line = vals.Aggregate(line, (current, val) => current + (val + " "));
+                            if (sensor.CurrentState.Values.TryGetValue(time, out currentValue))
+                            {
+
+                                line = line + currentValue + " ";
+
+                                if (sensor.RawData.Values.TryGetValue(time, out valsRaw))
+                                {
+
+                                    line = line + "[" + valsRaw + "] (";
+                                }
+                                changesUsed.AddRange(vals.Where(x => !changesUsed.Contains(x)));
+                                // line = sensor.CurrentState.Values<time>.Values;
+                                line =  vals.Aggregate(line, (current, val) => current + (val + " ")) + ")";
+                            }
                         }
-                        line += ",";
+                        line += "\t";
                     }
                     line = line.Remove(line.Count() - 2);
                     writer.WriteLine(line);
@@ -368,26 +383,37 @@ namespace IndiaTango.Models
                 writer.WriteLine("Associated File:: " + Path.GetFileName(filePath));
                 writer.WriteLine("Site Name: " + data.Site.Name);
                 writer.WriteLine("Owner: " + data.Site.Owner);
-                writer.WriteLine("GPS: " + data.Site.GpsLocation);
-
+                writer.WriteLine("Latitude/Northing: " + data.Site.GpsLocation.DecimalDegreesLatitude);
+                writer.WriteLine("Longitude/Easting: " + data.Site.GpsLocation.DecimalDegreesLongitude);
+                writer.WriteLine("GPS Grid System: " + data.Site.GpsLocation.GridSystem);
+                writer.WriteLine("Elevation (MASL): " + data.Site.Elevation);
+                writer.WriteLine("Country: " + data.Site.CountryName);
 
                 if (data.Site.PrimaryContact != null)
                 {
-                    writer.WriteLine("Primary Contact:");
-                    writer.WriteLine("\tName: " + data.Site.PrimaryContact.FirstName + " " +
+                    writer.WriteLine("Contact:");
+                    writer.WriteLine("Name: " + data.Site.PrimaryContact.FirstName + " " +
                                      data.Site.PrimaryContact.LastName);
-                    writer.WriteLine("\tBusiness: " + data.Site.PrimaryContact.Business);
-                    writer.WriteLine("\tPhone: " + data.Site.PrimaryContact.Phone);
-                    writer.WriteLine("\tEmail: " + data.Site.PrimaryContact.Email);
+                    writer.WriteLine("Organisation: " + data.Site.PrimaryContact.Business);
+                    writer.WriteLine("Phone: " + data.Site.PrimaryContact.Phone);
+                    writer.WriteLine("Email: " + data.Site.PrimaryContact.Email);
+                }
+                else
+                {
+                    writer.WriteLine("Contact:");
+                    writer.WriteLine("Name: ");
+                    writer.WriteLine("Organisation: ");
+                    writer.WriteLine("Phone: ");
+                    writer.WriteLine("Email: ");
                 }
 
-                writer.WriteLine("Number of Sensors: " + data.Sensors.Count); 
-
+                writer.WriteLine("Number of Sensors: " + data.Sensors.Count );
+                writer.WriteLine();
                 if (data.Sensors != null && data.Sensors.Count > 0)
                 {
                     foreach (var sensor in data.Sensors.OrderBy(x => x.SortIndex))
                     {
-                        writer.WriteLine(ConstructHeader(sensor));
+                        writer.WriteLine(sensor.Name);
                         writer.WriteLine("Description: " + sensor.Description);
                         foreach (var metaData in sensor.MetaData)
                         {
@@ -396,7 +422,6 @@ namespace IndiaTango.Models
                             writer.WriteLine("Date Installed: " + metaData.DateOfInstallation);
                             writer.WriteLine("Calibration Frequency (Days): " + metaData.IdealCalibrationFrequency.Days);
                         }
-                        writer.WriteLine("Calibrations:");
                         foreach (var calibration in sensor.Calibrations)
                         {
                             writer.WriteLine(calibration);
@@ -404,9 +429,16 @@ namespace IndiaTango.Models
                         writer.WriteLine();
                     }
                 }
-                writer.WriteLine("DataSet notes:\r\n\t" + data.Site.EditingNotes);
+                writer.WriteLine("Dataset notes:\r\n");
+                if (data.Site.DataEditingNotes != null)
+                {
+                    foreach (var note in data.Site.DataEditingNotes)
+                    {
+                        writer.WriteLine(note);
+                    }
+                }
                 writer.WriteLine();
-                writer.WriteLine("Site notes:\r\n\t" + data.Site.SiteNotes);
+                writer.WriteLine("Site notes:\r\n" + data.Site.SiteNotes);
                 
                 Debug.WriteLine(metaDataFilePath);
                 writer.Close();

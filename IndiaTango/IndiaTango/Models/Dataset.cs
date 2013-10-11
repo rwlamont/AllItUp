@@ -31,6 +31,8 @@ namespace IndiaTango.Models
         private int _dataInterval;
         private int _lowestYearLoaded;
         private int _highestYearLoaded;
+        
+        private string _countryName;
 
         public Dataset() { } //For Protobuf-net
 
@@ -113,6 +115,7 @@ namespace IndiaTango.Models
                 return new DateTime(EndTimeStamp.Year, 1, 1);
             }
         }
+
 
         /// <summary>
         /// Returns the list of sensors for this dataset
@@ -493,7 +496,7 @@ namespace IndiaTango.Models
 
                 if(exportedFiles.Length >= 5)
                 {
-                    for (var i = 0; i < exportedFiles.Length - 4; i++)
+                    for (var i = 0; i < exportedFiles.Length - 2; i++)
                     {
                         File.Delete(exportedFiles[i]);
                     }

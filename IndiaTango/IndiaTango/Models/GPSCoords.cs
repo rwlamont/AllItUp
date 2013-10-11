@@ -12,6 +12,7 @@ namespace IndiaTango.Models
     {
         private decimal _latitude;
         private decimal _longitude;
+        private string _gridsystem;
 
         private GPSCoords() {} // Necessary for serialisation.
 
@@ -20,10 +21,11 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="latitude">Latitude in Decimal Degrees.</param>
         /// <param name="longitude">Longitude in Decimal Degrees.</param>
-        public GPSCoords(decimal latitude, decimal longitude)
+        public GPSCoords(decimal latitude, decimal longitude, string gridSystem)
         {
             _latitude = latitude;
             _longitude = longitude;
+            _gridsystem = gridSystem;
         }
 
         /// <summary>
@@ -31,10 +33,11 @@ namespace IndiaTango.Models
         /// </summary>
         /// <param name="latitude">Latitude in DMS notation.</param>
         /// <param name="longitude">Longitude in DMS notation.</param>
-        public GPSCoords(string latitude, string longitude)
+        public GPSCoords(string latitude, string longitude, string gridSystem)
         {
             _latitude = ConvertDMSToDecimalDegrees(latitude);
             _longitude = ConvertDMSToDecimalDegrees(longitude);
+            _gridsystem = gridSystem;
         }
 
         #region Private Methods
@@ -110,6 +113,9 @@ namespace IndiaTango.Models
         /// Gets or sets the longitude value, using Degrees Minutes Seconds (DMS).
         /// </summary>
         public string DMSLongitude { get { return ConvertDecimalDegreesToDMS(_longitude, false); } set { _longitude = ConvertDMSToDecimalDegrees(value); } }
+
+        [ProtoMember(3)]
+        public string GridSystem { get { return _gridsystem; } set { _gridsystem = value; } }
         #endregion
 
         public override bool Equals(object obj)
@@ -129,9 +135,9 @@ namespace IndiaTango.Models
             decimal lng;
 
             if (decimal.TryParse(latitude, out lat) && decimal.TryParse(longitude, out lng))
-                return new GPSCoords(lat, lng);
+                return new GPSCoords(lat, lng, null);
             else
-                return new GPSCoords(latitude, longitude);
+                return new GPSCoords(latitude, longitude, null);
         }
     }
 }

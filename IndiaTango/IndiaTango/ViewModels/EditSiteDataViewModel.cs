@@ -28,7 +28,7 @@ namespace IndiaTango.ViewModels
             _container = container;
 
             AllContacts = Contact.ImportAll();
-
+            AllCountries = CountriesHelper.CountriesNames();
             //Hack used to force the damn buttons to update
             DoneCancelVisible = Visibility.Visible;
             DoneCancelVisible = Visibility.Collapsed;
@@ -58,6 +58,7 @@ namespace IndiaTango.ViewModels
         private bool _isNewSite;
         private bool _siteControlsEnabled;
         private ObservableCollection<Contact> _allContacts;
+        private ObservableCollection<string> _allCountries;
         private bool _hasSelectedPrimaryContact;
         private bool _hasSelectedSecondaryContact;
         private bool _hasSelectedUniversityContact;
@@ -70,6 +71,7 @@ namespace IndiaTango.ViewModels
         #region Site Details
 
         private string _siteName;
+        private string _countryName;
         private string _owner;
         private string _notes;
         private string _elevation;
@@ -78,6 +80,7 @@ namespace IndiaTango.ViewModels
         private string _latitude;
         private string _longitude;
         private List<NamedBitmap> _siteImages;
+        private string _gridsystem;
 
         #endregion
 
@@ -119,17 +122,19 @@ namespace IndiaTango.ViewModels
                     Owner = DataSet.Site.Owner;
                     Notes = DataSet.Site.SiteNotes;
                     PrimaryContact = DataSet.Site.PrimaryContact;
-                    SecondaryContact = DataSet.Site.SecondaryContact;
+                    CountryCode = DataSet.Site.CountryName;
                     Elevation = DataSet.Site.Elevation.ToString();
                     if (DataSet.Site.GpsLocation != null)
                     {
                         Latitude = DataSet.Site.GpsLocation.DecimalDegreesLatitude.ToString();
                         Longitude = DataSet.Site.GpsLocation.DecimalDegreesLongitude.ToString();
+                        GridSystem = DataSet.Site.GpsLocation.GridSystem;
                     }
                     else
                     {
                         Latitude = "0";
                         Longitude = "0";
+                        GridSystem = "WGS84";
                     }
 
                     SiteImages = DataSet.Site.Images ?? new List<NamedBitmap>();
@@ -138,12 +143,13 @@ namespace IndiaTango.ViewModels
                 {
                     SiteName = "";
                     Owner = "";
+                    CountryCode = "";
                     Notes = "";
                     Elevation = "";
                     Latitude = "0";
                     Longitude = "0";
+                    GridSystem = "WGS84";
                     PrimaryContact = null;
-                    SecondaryContact = null;
                     SiteImages = new List<NamedBitmap>();
                 }
             }
@@ -181,6 +187,11 @@ namespace IndiaTango.ViewModels
             get { return _allContacts; }
             set { _allContacts = value; NotifyOfPropertyChange(() => AllContacts); }
         }
+        public ObservableCollection<string> AllCountries
+        {
+            get { return _allCountries; }
+            set { _allCountries = value; NotifyOfPropertyChange(() => AllContacts); }
+        }
 
         public bool HasSelectedPrimaryContact
         {
@@ -211,6 +222,7 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => HasSelectedUniversityContact);
             }
         }
+
 
         public bool DoneCancelEnabled
         {
@@ -294,6 +306,16 @@ namespace IndiaTango.ViewModels
             }
         }
 
+        public string CountryCode
+        {
+            get { return _countryName; }
+            set
+            {
+                _countryName = value;
+                NotifyOfPropertyChange(() => CountryCode);
+            }
+        }
+
         public string Notes
         {
             get { return _notes; }
@@ -313,6 +335,18 @@ namespace IndiaTango.ViewModels
                 NotifyOfPropertyChange(() => Elevation);
             }
         }
+
+        public string GridSystem
+        {
+            get { return _gridsystem; }
+            set
+            {
+                _gridsystem = value;
+                NotifyOfPropertyChange(() => GridSystem);
+            }
+        }
+
+
 
         public Contact PrimaryContact
         {
@@ -497,26 +531,26 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
-        #region Secondary Contact
+        //#region Secondary Contact
 
-        public void BtnNewSecondary()
-        {
-            _contactTypeToUpdate = 1;
-            NewContact();
-            _contactTypeToUpdate = -1;
-        }
+        //public void BtnNewSecondary()
+        //{
+        //    _contactTypeToUpdate = 1;
+        //    NewContact();
+        //    _contactTypeToUpdate = -1;
+        //}
 
-        public void BtnEditSecondary()
-        {
-            EditContact(SecondaryContact);
-        }
+        //public void BtnEditSecondary()
+        //{
+        //    EditContact(SecondaryContact);
+        //}
 
-        public void BtnDelSecondary()
-        {
-            DeleteContact(SecondaryContact);
-        }
+        //public void BtnDelSecondary()
+        //{
+        //    DeleteContact(SecondaryContact);
+        //}
 
-        #endregion
+        //#endregion
 
         #region Images
 
@@ -570,11 +604,12 @@ namespace IndiaTango.ViewModels
             try
             {
                 DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
+                DataSet.Site.GpsLocation.GridSystem = GridSystem;
                 DataSet.Site.Owner = Owner;
+                DataSet.Site.CountryName = CountryCode;
                 OwnerHelper.Add(Owner);
                 DataSet.Site.SiteNotes = Notes;
                 DataSet.Site.PrimaryContact = PrimaryContact;
-                DataSet.Site.SecondaryContact = SecondaryContact;
                 DataSet.Site.Elevation = float.Parse(Elevation);
                 DataSet.Site.Images = _siteImages.ToList();
 
@@ -654,6 +689,184 @@ namespace IndiaTango.ViewModels
             TryClose();
         }
 
+        public void BtnGoToGPS()
+        {
+            if (!String.IsNullOrWhiteSpace(Longitude) && !String.IsNullOrWhiteSpace(Latitude))
+            {
+                var webAddy = "https://maps.google.com/maps?q=" + Latitude + "," + Longitude;
+                System.Diagnostics.Process.Start(webAddy);
+            }
+        }
+
+        public void BtnSiteLoad()
+        {
+             if (DataSet != null)
+            {
+                string siteOwner, siteName, siteCountry, siteGPSLat, siteGPSLong, siteGPSGrid, siteElevation, siteContactName, siteContactNumber, siteContactEmail, siteContactOrginisation;
+                OpenFileDialog openMeta = new OpenFileDialog();
+                openMeta.Filter = @"Meta Files|*.meta|All Files|*.*;";
+                if (openMeta.ShowDialog() == DialogResult.OK)
+                {
+
+                    try
+                    {
+
+                        int iss;
+                        string numSensors, loopStr;
+                        StreamReader reader = new StreamReader(openMeta.FileName);
+                        reader.ReadLine(); // Throwing away asscoiated file
+                        siteName = CleanMetaIn(reader.ReadLine(), 11);
+                        siteOwner = CleanMetaIn(reader.ReadLine(), 7);
+                        siteGPSLat = CleanMetaIn(reader.ReadLine(), 19);
+                        siteGPSLong = CleanMetaIn(reader.ReadLine(), 19);
+                        siteGPSGrid = CleanMetaIn(reader.ReadLine(), 17);
+                        siteElevation = CleanMetaIn(reader.ReadLine(), 17);
+                        siteCountry = CleanMetaIn(reader.ReadLine(), 8);
+                        reader.ReadLine(); // Throwing away contact header
+                        siteContactName = CleanMetaIn(reader.ReadLine(), 6);
+                        siteContactOrginisation = CleanMetaIn(reader.ReadLine(), 14);
+                        siteContactNumber = CleanMetaIn(reader.ReadLine(), 7);
+                        siteContactEmail = CleanMetaIn(reader.ReadLine(), 7);
+                        //sitePropNotes = reader.ReadToEnd();
+                        numSensors = reader.ReadLine();
+
+                        iss = Int32.Parse(CleanMetaIn(numSensors, 19));
+                        int indexOfSensor;
+                        if(iss == _dataSet.Sensors.Count)
+                        {
+
+                        string header = reader.ReadLine();
+                        string[] arr4 = new string[iss + 1];
+                        for (int i = 0; i <= iss; i++)
+                        {
+                            header = reader.ReadLine();
+                            
+                             
+                            int ndx = _dataSet.Sensors.FindIndex(delegate(Sensor toFind)
+                            {
+                                return toFind.Name == header;
+                            }
+                            );
+                            loopStr = reader.ReadLine();
+                            if(ndx >= 0)
+                            {
+                                do{
+
+                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Desc")
+                                {
+                                    DataSet.Sensors[ndx].Description = CleanMetaIn(loopStr, 13);
+                                    loopStr = reader.ReadLine();
+                                }
+                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Seri")
+                                {
+                                    DataSet.Sensors[ndx].CurrentMetaData.SerialNumber = CleanMetaIn(loopStr, 15);
+                                    loopStr = reader.ReadLine();
+                                }
+                                if (!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Manu")
+                                {
+                                    DataSet.Sensors[ndx].CurrentMetaData.Manufacturer = CleanMetaIn(loopStr, 14);
+                                    loopStr = reader.ReadLine();
+                                }
+                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Date")
+                                {
+                                    DataSet.Sensors[ndx].CurrentMetaData.DateOfInstallation = DateTime.Parse(CleanMetaIn(loopStr, 16));
+                                    loopStr = reader.ReadLine();
+                                }
+                                if (!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Cali")
+                                {
+                                    if(loopStr.Substring(10,2) == "n ")
+                                    {
+
+                                    DataSet.Sensors[ndx].CurrentMetaData.IdealCalibrationFrequency = TimeSpan.FromDays(Double.Parse(CleanMetaIn(loopStr, 29)));
+                                    loopStr = reader.ReadLine();
+                                    }
+                                    if(!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Cali" && loopStr.Substring(10,2) == "n:")
+                                    {
+                                        var calibStr = CleanMetaIn(loopStr, 12);
+                                        DateTime calibTime = new DateTime(int.Parse(calibStr.Substring(0,4)),int.Parse(calibStr.Substring(5,2)),int.Parse(calibStr.Substring(8,2)));
+                                        string[] first = calibStr.Substring(16).Split(' ');
+                                        string[] preNum = first[0].Split('-');
+                                        string[] postNum = first[2].Split('-');
+                                        postNum[1].Remove(0, 6);
+                                        DataSet.Sensors[ndx].Calibrations.Add(new Calibration(calibTime, float.Parse(preNum[0].TrimStart('[')), float.Parse(preNum[1]), float.Parse(preNum[2].TrimEnd(']')), float.Parse(postNum[0].TrimStart('[')), float.Parse(postNum[1]), float.Parse(postNum[2].TrimEnd(']'))));
+                                        loopStr = reader.ReadLine();
+                                    }
+                                }
+
+                            }while(!string.IsNullOrEmpty(loopStr));
+                            }
+                        }
+                           
+                        string checkNext = reader.ReadLine();
+                        if (checkNext.Equals("Dataset notes:"))
+                        {
+                            loopStr = reader.ReadLine();
+                            while (!string.IsNullOrEmpty(loopStr))
+                            {
+                                DataSet.Site.DataEditingNotes.Add(DateTime.Now, loopStr);
+                            }
+                        }
+                        checkNext = reader.ReadLine();
+                        if (checkNext.Equals("Site notes:"))
+                        {
+                            loopStr = reader.ReadLine();
+                            while (!string.IsNullOrEmpty(loopStr))
+                            {
+                                DataSet.Site.SiteNotes += loopStr;
+                            }
+                        }
+
+                        }
+
+                        else
+                        {
+                            Microsoft.Windows.Controls.MessageBox.Show("Could not load sensor data as meta file did not match actual number of sensors");
+                        }
+                        var oldFile = DataSet.SaveLocation;
+                        File.Delete(oldFile);
+                        var names = siteContactName.Split(' ');
+                        Contact siteContact = new Contact(names[0], names[1], siteContactEmail, siteContactOrginisation, siteContactNumber, 12);
+                        OwnerHelper.Add(siteOwner);
+                        ObservableCollection<Contact> contactList = Contact.ImportAll();
+                        if(!contactList.Contains(siteContact))
+                        {
+                            contactList.Add(siteContact);
+                            Contact.ExportAll(contactList);
+                        }
+                        PrimaryContact = siteContact;
+                        GridSystem = siteGPSGrid;
+                        Latitude = siteGPSLat;
+                        Longitude = siteGPSLong;
+                        SiteName = siteName;
+                        Elevation = siteElevation;
+                        Owner = siteOwner;
+                        CountryCode = siteCountry;
+
+        
+                    }
+                    catch (Exception excep)
+                    {
+                        System.Windows.MessageBox.Show(excep.ToString());
+                    }
+
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please Load a Dataset first", "No Dataset Loaded");
+            }   
+        }
+        
+       
+
+        public string CleanMetaIn(string raw, int toRemove)
+        {
+            string clean;
+            clean = raw.Substring(toRemove);
+            return clean;
+        }
         #endregion
+
+
     }
 }

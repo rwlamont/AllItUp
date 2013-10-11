@@ -521,7 +521,7 @@ namespace IndiaTango.Models
         }
 
         /// <summary>
-        /// g   iven a abreviation returns a full parameter name
+        /// given a abreviation returns a full parameter name
         /// </summary>
         /// <param name="abrev">the abreviation we want to get the full name for</param>
         /// <returns></returns>

@@ -78,7 +78,7 @@ namespace IndiaTango.Models
         /// </summary>
         public static string TimeFormatString
         {
-            get { return "dd/MM/yyyy HH:mm:ss"; }
+            get { return "yyyy-MM-dd HH:mm"; }
         }
         #endregion
 

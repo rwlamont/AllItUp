@@ -1,8 +1,8 @@
 ﻿<Window x:Class="IndiaTango.Views.ExportView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding Title}" Height="345" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
-    <Grid Name="grdMain">
+        Title="{Binding Title}" Height="375" Width="480" WindowStartupLocation="CenterOwner" Icon="{Binding Icon}">
+    <Grid Name="grdMain" Height="334">
         <Grid.RowDefinitions>
             <RowDefinition Height="45" />
             <RowDefinition Height="Auto" />
@@ -25,6 +25,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -35,19 +36,23 @@
             <TextBlock Margin="7" TextAlignment="Right" Text="Included Data Points:" Grid.Row="1" Grid.Column="0" />
             <ComboBox Grid.Row="1" Grid.Column="1" Margin="3" ItemsSource="{Binding ExportedPointsOptions}" SelectedItem="{Binding ExportedPoints, Mode=TwoWay}"/>
             
-            <TextBlock Margin="7" TextAlignment="Right" Text="Include Empty Lines:" Grid.Row="2" Grid.Column="0" />
-            <CheckBox Grid.Column="1" Grid.Row="2" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeEmptyLines, Mode=TwoWay}" />
+            <TextBlock Margin="7" TextAlignment="Right" Text="Include Empty Lines:" Grid.Row="4" Grid.Column="0" />
+            <CheckBox Grid.Column="1" Grid.Row="4" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeEmptyLines, Mode=TwoWay}" />
 
-            <TextBlock Margin="7" TextAlignment="Right" Text="Include Meta Data File:" Grid.Row="3" Grid.Column="0" />
-            <CheckBox Grid.Column="1" Grid.Row="3" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeMetaData, Mode=TwoWay}" />
+            <TextBlock Margin="7" TextAlignment="Right" Text="Include Metadata File:" Grid.Row="5" Grid.Column="0" />
+            <CheckBox Grid.Column="1" Grid.Row="5" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeMetaData, Mode=TwoWay}" />
 
-            <TextBlock Margin="7" TextAlignment="Right" Text="Include Modifications Log:" Grid.Row="4" Grid.Column="0" />
-            <CheckBox Grid.Column="1" Grid.Row="4" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeChangeLog, Mode=TwoWay}" />
+            <TextBlock Margin="7" TextAlignment="Right" Text="Include Modifications Log:" Grid.Row="6" Grid.Column="0" />
+            <CheckBox Grid.Column="1" Grid.Row="6" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding IncludeChangeLog, Mode=TwoWay}" />
 
-            <TextBlock Margin="7" TextAlignment="Right" Text="Export Raw Data:" Grid.Row="5" Grid.Column="0" />
-            <CheckBox Grid.Column="1" Grid.Row="5" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding ExportRawData, Mode=TwoWay}" />
-
+            <TextBlock Margin="7" TextAlignment="Right" Text="Export Raw Data:" Grid.Row="7" Grid.Column="0" />
+            <CheckBox Grid.Column="1" Grid.Row="7" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding ExportRawData, Mode=TwoWay}" />
+            
+            <TextBlock Margin="7" TextAlignment="Right" Text="Export File Format" Grid.Row="3" Grid.Column="0" />
+            <ComboBox Grid.Row="3" Grid.Column="1" Margin="3" ItemsSource="{Binding ExportFormatOptions}" SelectedItem="{Binding ExportFor, Mode=TwoWay}"/>
+            
             <Grid Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3">
+               
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />

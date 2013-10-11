@@ -66,7 +66,7 @@ namespace IndiaTango.Models
         public static string DatasetExportLocation(Dataset dataset)
         {
             var timestamp = DateTime.Now;
-            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name, timestamp.ToString("yyyy"), timestamp.ToString("MM"), timestamp.ToString("dd"));
+            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name, timestamp.ToString("yyyy")+timestamp.ToString("MM")+timestamp.ToString("dd"));
 
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
@@ -80,6 +80,22 @@ namespace IndiaTango.Models
                 var path = Path.Combine(new[]{
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     "B3"
+                });
+
+                if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand
+                    Directory.CreateDirectory(path);
+
+                return path;
+            }
+        }
+
+        public static string UserExportRoot
+        {
+            get
+            {
+                var path = Path.Combine(new[]{
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "B3\\User Export"
                 });
 
                 if (!Directory.Exists(path)) // Creates directory if it doesn't exist, no need to create beforehand

@@ -58,7 +58,7 @@
             <MenuItem Header="_Users">
                 <MenuItem Header="_Show Current User" cal:Message.Attach="[Event Click] = [Action ShowUser]" />
                 <MenuItem Header="_Add New User" cal:Message.Attach="[Event Click] = [Action AddUser]" />
-                <MenuItem Header="_Change Current User" cal:Message.Attach="[Event Click] = [Action ShowUser]" />
+                <MenuItem Header="_Change Current User" cal:Message.Attach="[Event Click] = [Action ChangeUser]" />
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Log" cal:Message.Attach="[Event Click] = [Action ShowLog]" />
@@ -305,8 +305,8 @@
                                 <RowDefinition Height="30" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="{Binding CurrentUser}" VerticalAlignment="Center" FontWeight="Bold" />
-                            <TextBlock Grid.Row="1" Text="Notes:" VerticalAlignment="Center" FontWeight="Bold" />
+                            <TextBlock Grid.Row="0" Text="{Binding CurrentUser, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" FontWeight="Bold" />
+                            <TextBlock Grid.Row="1" Text="Dataset Notes:" VerticalAlignment="Center" FontWeight="Bold" />
                             <Grid Grid.Row="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="25" />
@@ -473,7 +473,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <TextBlock Text="Current Site:" Margin="10,0" VerticalAlignment="Center" />
-                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]" />
+                                <ComboBox IsEnabled="{Binding FeaturesEnabled}" ItemsSource="{Binding SiteNames}" Width="120" SelectedIndex="{Binding ChosenSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event SelectionChanged] = [Action UpdateSelectedSite]"/>
                                 <Button IsEnabled="{Binding FeaturesEnabled}" Margin="10,0" Content="Site Information" cal:Message.Attach="[Event Click] = [Action ShowCurrentSiteInformation]" />
                             </StackPanel>
                         </Grid>
@@ -505,7 +505,7 @@
                                     <StackPanel Grid.Row="0">
                                         <StackPanel Orientation="Horizontal" Height="25" VerticalAlignment="Top">
                                             <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,5,0" />
-                                            <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd-MM-yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
+                                            <toolkit:DateTimePicker Width="125" Value="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="yyyy-MM-dd HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action StartTimeChanged($eventArgs)]" />
                                             <TextBlock Text=" - to - " VerticalAlignment="Center" Margin="5,0" />
                                             <toolkit:DateTimePicker Width="125" Value="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" Format="Custom" FormatString="dd-MM-yy HH:mm" IsEnabled="{Binding CanEditDates}" cal:Message.Attach="[Event ValueChanged] = [Action EndTimeChanged($eventArgs)]" />
                                         </StackPanel>

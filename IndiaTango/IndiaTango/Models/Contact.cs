@@ -74,7 +74,7 @@ namespace IndiaTango.Models
             Business = business;
             Phone = phone;
             // Give it a fresh ID
-            ID = (id > -1) ? id : NextID;
+            ID = (id > -1) ? id : NextID; 
         }
 
         #region public variables

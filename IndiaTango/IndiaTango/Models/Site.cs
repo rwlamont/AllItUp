@@ -13,6 +13,7 @@ namespace IndiaTango.Models
         private int _iD;
         private string _name;
         private string _owner;
+        private string _countryName;
         private Contact _primaryContact;
         private Contact _secondaryContact;
         private GPSCoords _gpsLocation;
@@ -226,6 +227,15 @@ namespace IndiaTango.Models
         [ProtoMember(16)]
         public float Elevation { get; set; }
 
+        /// <summary>
+        /// The name of the country the site is in
+        /// </summary>
+        [ProtoMember(17)]
+        public string CountryName
+        {
+            get { return _countryName; }
+            set { _countryName = value; }
+        }
         #endregion
 
         #region Public methods

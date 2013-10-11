@@ -274,6 +274,7 @@ namespace IndiaTango.ViewModels
                                                               VerticalAlignment = VerticalAlignment.Center,
                                                               Margin = new Thickness(5)
                                                           };
+        private string siteOwner;
 
         #endregion
 
@@ -1299,7 +1300,7 @@ namespace IndiaTango.ViewModels
         /// <param name="series">The line series to calculate from</param>
         /// <returns>The smallest Y value</returns>
         private double MinimumY(IEnumerable<LineSeries> series)
-        {
+        { 
             double[] min = { double.MaxValue };
             foreach (var value in series.SelectMany(line => ((DataSeries<DateTime, float>)line.DataSeries).Where(value => value.Y < min[0])))
             {
@@ -1720,7 +1721,7 @@ namespace IndiaTango.ViewModels
                                                                                           "Applied formula: {0} [Formula:{1}]", reason, manualFormulaTextBox.Text));
 
                                                     ApplicationCursor = Cursors.Arrow;
-
+                                                    EventLogger.LogInfo(_currentDataset, "Formula Applied", "Formula " + manualFormulaTextBox.Text + "applied to sensors." + reason);
                                                     Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the sensor(s) involved.",
                                                                           false, false);
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);
@@ -1737,6 +1738,7 @@ namespace IndiaTango.ViewModels
                                                     }
                                                     UpdateGraph(false);
                                                     UpdateUndoRedo();
+                                                    EventLogger.LogInfo(_currentDataset, "Formula Applied", "Formula " + formula + "applied to sensors." + reason);
                                                 }
                                                 else
                                                 {
@@ -1839,6 +1841,8 @@ namespace IndiaTango.ViewModels
                                                       ApplicationCursor = Cursors.Arrow;
                                                       _manualPreviewTextBlock.Text = "Reject";
                                                       UpdateGraph(false);
+                                                      EventLogger.LogInfo(_currentDataset, "Formula Applied", "Formula " + formula + "applied to sensors.");
+
                                                   }
                                                   else
                                                   {
@@ -2377,6 +2381,14 @@ namespace IndiaTango.ViewModels
 
             return tabItem;
         }
+
+        static string CleanMetaIn(string raw, int toRemove)
+        {
+            string clean;
+            clean = raw.Substring(toRemove);
+            return clean;
+        }
+
 
         /// <summary>
         /// Checks the sensors for editing against a set of detection methods
@@ -2981,7 +2993,7 @@ namespace IndiaTango.ViewModels
                                                  }
 
                                                  var lastNewYear = lastTimestamp.Year - CurrentDataset.StartYear.Year;
-
+                                                 var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
                                                  if (lastNewYear > CurrentDataset.HighestYearLoaded)
                                                  {
                                                      CurrentDataset.LoadInSensorData(lastNewYear > highestYear ?
@@ -3017,7 +3029,7 @@ namespace IndiaTango.ViewModels
                                                          var newState = matchingSensor.CurrentState.Clone();
                                                          //Check to see if values are inserted
                                                          var insertedValues = false;
-                                                         var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
+                                                         
                                                          //And add values for any new dates we want
                                                          foreach (var value in newSensor.CurrentState.Values.Where(value =>
                                                                      !keepOldValues || !(matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
@@ -3028,7 +3040,7 @@ namespace IndiaTango.ViewModels
                                                              matchingSensor.RawData.Values[value.Key] = value.Value;
                                                              insertedValues = true;
                                                          }
-
+                                                         
                                                          if (insertedValues)
                                                          {
                                                              //Give a reason
@@ -3038,7 +3050,7 @@ namespace IndiaTango.ViewModels
                                                              matchingSensor.ClearUndoStates();
                                                              EventLogger.LogSensorInfo(CurrentDataset,
                                                                                        matchingSensor.Name,
-                                                                                       "Added values from new import");
+                                                                                       "Added values from new import" );
                                                          }
                                                      }
                                                  }
@@ -3557,8 +3569,10 @@ namespace IndiaTango.ViewModels
 
             _windowManager.ShowDialog(askUser);
             var user = askUser.Text;
-            UserHelper.Add(user);
-
+            if (!String.IsNullOrWhiteSpace(user))
+            {
+                UserHelper.Add(user);
+            }
         }
 
         public void ChangeUser()
@@ -4398,5 +4412,7 @@ namespace IndiaTango.ViewModels
         }
 
         #endregion
+
+        public string siteName { get; set; }
     }
 }

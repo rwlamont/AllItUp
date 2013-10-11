@@ -20,6 +20,7 @@ namespace IndiaTango.ViewModels
         private bool _exportRaw = false;
         private DateColumnFormat _dateColumnFormat;
         private ExportedPoints _exportedPoints;
+        private string _exportFormat;
 
         public ExportViewModel(IWindowManager windowManager, SimpleContainer container)
         {
@@ -28,6 +29,7 @@ namespace IndiaTango.ViewModels
 
             _dateColumnFormat = DateColumnFormat.TwoDateColumn;
             _exportedPoints = ExportedPoints.AllPoints;
+            _exportFormat = "Tab Seperated Values, .txt";
         }
 
         #region View Properties
@@ -44,6 +46,11 @@ namespace IndiaTango.ViewModels
         public List<DateColumnFormat> DateColumnFormatOptions
         {
             get { return new List<DateColumnFormat>(new[] { DateColumnFormat.TwoDateColumn, DateColumnFormat.OneDateColumn }); }
+        }
+
+        public List<string> ExportFormatOptions
+        {
+            get { return new List<string>(new[] { "GLEON File Format, .gln", "Tab Seperated Values, .txt" }); }
         }
 
         public List<ExportedPoints> ExportedPointsOptions
@@ -97,20 +104,40 @@ namespace IndiaTango.ViewModels
             set { _dataset = value; }
         }
 
+        public string ExportFor
+        {
+            get {return _exportFormat;}
+            set {_exportFormat = value;}
+        }
 
         #endregion
 
         #region Event Handlers
         public void btnExport()
         {
-            var dialog = new SaveFileDialog();
-            dialog.Filter = ExportFormat.TSV.FilterText + "|" + ExportFormat.GLN.FilterText; // Add in surrport for gln in the file format
-
+            var dialog = new FolderBrowserDialog();
+            dialog.SelectedPath = Common.UserExportRoot;
+            dialog.Description = "Set the folder to export to";
+            //dialog.Filter = ExportFormat.TSV.FilterText + "|" + ExportFormat.GLN.FilterText; // Add in surrport for gln in the file format
+            
             if (dialog.ShowDialog() == DialogResult.OK)
             {
+                string startDate = Dataset.StartTimeStamp.Year.ToString() + Dataset.StartTimeStamp.Month.ToString();
+                string endDate = Dataset.EndTimeStamp.Year.ToString() + Dataset.EndTimeStamp.Month.ToString();
+                if (endDate.Length == 5)
+                {
+                    endDate = Dataset.EndTimeStamp.Year.ToString() + "0" + Dataset.EndTimeStamp.Month.ToString();
+                }
+                if (startDate.Length == 5)
+                {
+                    startDate = Dataset.StartTimeStamp.Year.ToString() + "0" + Dataset.StartTimeStamp.Month.ToString();
+                }
+                
+                var countryCode = CountriesHelper.GetCode(Dataset.Site.CountryName);
+                var filePath = dialog.SelectedPath + "\\" + Dataset.Site.Name + countryCode  + startDate + "_" + endDate + ExportFor.Substring(ExportFor.Length - Math.Min(4,ExportFor.Length));
                 try
                 {
-                    DatasetExporter.Export(Dataset, dialog.FileName, ExportFormat.CSV, IncludeEmptyLines,
+                    DatasetExporter.Export(Dataset, filePath, ExportFormat.CSV, IncludeEmptyLines,
                                            IncludeMetaData, IncludeChangeLog, ExportedPoints, DateColumnFormat,
                                            ExportRawData, true, true);
                 }catch(Exception e)
