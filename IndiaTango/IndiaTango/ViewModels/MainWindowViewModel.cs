@@ -486,7 +486,10 @@ namespace IndiaTango.ViewModels
 
         public string CurrentUser
         {
-            get { return UserHelper.ShowCurrentUser; }
+            get
+            { return UserHelper.ShowCurrentUser;}
+            set { _user = value; NotifyOfPropertyChange(() => CurrentUser); }
+
         }
         /// <summary>
         /// The Sensors for the currently selected dataset
@@ -3300,6 +3303,10 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite()
         {
+            if (UserHelper.CurrentUser == "Guest\r\n")
+            {
+                AddUser();
+            }
             UpdateSelectedSite(true, false);
         }
 
@@ -3550,29 +3557,9 @@ namespace IndiaTango.ViewModels
 
         public void AddUser()
         {
-            var askUser =
-                _container.GetInstance(typeof(SpecifyValueViewModel),
-                                       "SpecifyValueViewModel") as
-                SpecifyValueViewModel;
+            Common.ShowAddNewUser(_container, _windowManager);
 
-            if (askUser == null)
-            {
-                Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
-                                      false, true);
-                return;
-            }
-
-            
-            askUser.ShowComboBox = false;
-            askUser.Message = "Please Enter Your Desired Username";
-            askUser.Title = "Add New User";
-
-            _windowManager.ShowDialog(askUser);
-            var user = askUser.Text;
-            if (!String.IsNullOrWhiteSpace(user))
-            {
-                UserHelper.Add(user);
-            }
+            CurrentUser = UserHelper.CurrentUser;
         }
 
         public void ChangeUser()
@@ -3600,6 +3587,7 @@ namespace IndiaTango.ViewModels
             _windowManager.ShowDialog(askUser);
             var user = askUser.ComboBoxSelectedIndex;
             UserHelper.ChangeCurrent(user);
+            CurrentUser = UserHelper.CurrentUser;
             
         }
         /// <summary>

@@ -144,6 +144,35 @@ namespace IndiaTango.Models
             ShowMessageBox("Feature Not Implemented", "Sorry, this feature has not been created yet.", false, false);
         }
 
+        public static void ShowAddNewUser(SimpleContainer container, IWindowManager windowManager)
+        {
+            var askUser =
+                            container.GetInstance(typeof(SpecifyValueViewModel),
+                                                   "SpecifyValueViewModel") as
+                            SpecifyValueViewModel;
+
+            if (askUser == null)
+            {
+                Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
+                                      false, true);
+                return;
+            }
+
+
+            askUser.ShowComboBox = false;
+            askUser.Message = "Please Enter Your Desired Username";
+            askUser.Title = "Add New User";
+
+            windowManager.ShowDialog(askUser);
+            var user = askUser.Text;
+            if (!String.IsNullOrWhiteSpace(user))
+            {
+                UserHelper.Add(user);
+            }
+
+            
+        }
+
         public static Random Generator = new Random();
         public const string UnknownSite = "Unidentified Site";
 

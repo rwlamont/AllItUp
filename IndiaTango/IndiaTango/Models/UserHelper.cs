@@ -21,6 +21,11 @@ namespace IndiaTango.Models
                 get { return Path.Combine(Common.AppDataPath, "Users.csv"); }
             }
 
+            public static bool DoesItExist
+            {
+                get { return File.Exists(FileLocation); }
+            }
+            
             private static ObservableCollection<string> _users;
             /// <summary>
             /// The collection of units
@@ -50,8 +55,8 @@ namespace IndiaTango.Models
                 var usersIn = new List<string>();
                 if (!File.Exists(FileLocation))
                 {
-                    usersIn.Add("Test");
-                    _users = new ObservableCollection<string>(usersIn);
+
+                    _users = SetUpUsers();
                     SaveUsers();
                 }
                 else
@@ -105,6 +110,22 @@ namespace IndiaTango.Models
             public static void ChangeCurrent(int user)
             {
                 CurrentUser = Users.ElementAt(user);
+            }
+
+            private static ObservableCollection<string> SetUpUsers()
+            {
+                var users = new List<string>();
+
+                var abrevsFile = Path.Combine(Assembly.GetExecutingAssembly().Location.Replace("B3.exe", ""), "Resources", "Users.csv");
+
+                if (File.Exists(abrevsFile))
+                {
+                    users.AddRange(File.ReadAllText(abrevsFile, Encoding.UTF8).Split(','));
+                    users = users.Distinct().ToList();
+                    users.Sort();
+                }
+
+                return new ObservableCollection<string>(users);
             }
     }
     }
