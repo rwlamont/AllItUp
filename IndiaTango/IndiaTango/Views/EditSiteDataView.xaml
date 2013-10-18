@@ -50,7 +50,7 @@
                 <TextBox Grid.Column="1" Grid.Row="3" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="txtElevation" Text="{Binding Elevation}" />
                 <TextBlock Grid.Column="0" Grid.Row="4" Margin="7" Text="GPS Grid System:" TextAlignment="Right" />
                 <TextBox Grid.Column="1" Grid.Row="4" IsEnabled="{Binding SiteControlsEnabled}" Margin="3" Name="txtGridSystem" Text="{Binding GridSystem}" />
-                <Button Grid.Column="4" Grid.Row="4" Height="24" IsEnabled="{Binding HasGPSCoords}" Margin="3" Name="BtnGoToGps" ToolTip="Go to GPS on map" VerticalAlignment="Top" Visibility="{Binding CreateEditDeleteVisible}">
+                <Button Grid.Column="4" Grid.Row="5" Height="24" IsEnabled="{Binding HasGPSCoords}" Margin="0,3,6,0" Name="BtnGoToGps" ToolTip="Go to GPS on map" VerticalAlignment="Top" Visibility="{Binding CreateEditDeleteVisible}">
                     <Image Height="16" Source="/B3;component/Images/wizard.png" Width="16" />
                 </Button>
                 
@@ -127,10 +127,10 @@
                             <TextBlock Margin="5" Text="Edit" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button FontSize="15" HorizontalAlignment="Left" IsEnabled="{Binding EditDeleteEnabled}" Margin="5" Name="BtnSiteDelete" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
+                    <Button FontSize="15" HorizontalAlignment="Left" IsEnabled="{Binding EditDeleteEnabled}" Margin="5" Name="BtnSiteClose" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Visibility="{Binding CreateEditDeleteVisible}">
                         <StackPanel Orientation="Horizontal">
                             <Image Height="32" HorizontalAlignment="Left" SnapsToDevicePixels="True" Source="/B3;component/Images/delete_32.png" VerticalAlignment="Top" Width="32" />
-                            <TextBlock Margin="5" Text="Delete" VerticalAlignment="Center" />
+                            <TextBlock Margin="5" Text="Close" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                 </StackPanel>

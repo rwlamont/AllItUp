@@ -33,7 +33,7 @@ namespace IndiaTango.ViewModels
             DoneCancelVisible = Visibility.Visible;
             DoneCancelVisible = Visibility.Collapsed;
             DoneCancelEnabled = true;
-
+            _cantSave = false;
             AllContacts.CollectionChanged += (o, e) =>
                                                  {
                                                      if (e.Action != NotifyCollectionChangedAction.Add || _contactTypeToUpdate <= -1)
@@ -67,6 +67,7 @@ namespace IndiaTango.ViewModels
         private Visibility _createEditDeleteVisible;
         private int _selectedImage;
         private int _contactTypeToUpdate = -1;
+        private bool _cantSave;
 
         #region Site Details
 
@@ -141,6 +142,7 @@ namespace IndiaTango.ViewModels
                 }
                 else
                 {
+                    
                     SiteName = "";
                     Owner = "";
                     CountryCode = "";
@@ -292,8 +294,35 @@ namespace IndiaTango.ViewModels
             set
             {
                 _siteName = value;
-                NotifyOfPropertyChange(() => SiteName);
+                    NotifyOfPropertyChange(() => SiteName);
+  
             }
+        }
+        /// <summary>
+        /// CHecks to see wether the site name is unique, returns true if it is or false if it is not
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private bool siteNameIsUnique(string name)
+        {
+            
+            if (name == "New Site")
+            {
+                return true;
+            }
+            string[] siteNames = Dataset.GetAllDataSetFileNames();
+            if (siteNames == null)
+                return true;
+            var siteNamesList = siteNames.Select(x => x.Substring(x.LastIndexOf('\\') + 1, x.Length - x.LastIndexOf('\\') - 4)).ToList();
+            foreach (string s in siteNamesList)
+            {
+                string j = s.Substring(5);
+                if (j == name)
+                    return false;
+            }
+                        
+            return true;
+
         }
 
         public string Owner
@@ -601,60 +630,71 @@ namespace IndiaTango.ViewModels
 
         public void BtnSiteDone()
         {
-            try
-            {
-                DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
-                DataSet.Site.GpsLocation.GridSystem = GridSystem;
-                DataSet.Site.Owner = Owner;
-                DataSet.Site.CountryName = CountryCode;
-                OwnerHelper.Add(Owner);
-                DataSet.Site.SiteNotes = Notes;
-                DataSet.Site.PrimaryContact = PrimaryContact;
-                DataSet.Site.Elevation = float.Parse(Elevation);
-                DataSet.Site.Images = _siteImages.ToList();
+                try
+                {
+                    if (IsNewSite)
+                    {
+                        if (!siteNameIsUnique(SiteName))
+                        {
+                            Microsoft.Windows.Controls.MessageBox.Show("Site names neeed to be unique, please select a unique site name", "Unique site name needed");
+                            return;
+                        }
+                    }
+                            DataSet.Site.GpsLocation = GPSCoords.Parse(Latitude, Longitude);
+                            DataSet.Site.GpsLocation.GridSystem = GridSystem;
+                            DataSet.Site.Owner = Owner;
+                            DataSet.Site.CountryName = CountryCode;
+                            OwnerHelper.Add(Owner);
+                            DataSet.Site.SiteNotes = Notes;
+                            DataSet.Site.PrimaryContact = PrimaryContact;
+                            DataSet.Site.Elevation = float.Parse(Elevation);
+                            DataSet.Site.Images = _siteImages.ToList();
 
-                var bw = new BackgroundWorker();
+                            var bw = new BackgroundWorker();
 
-                bw.DoWork += (o, e) =>
-                                 {
-                                     var oldFile = DataSet.SaveLocation;
-                                     var oldName = DataSet.Site.Name;
-                                     DataSet.Site.Name = SiteName;
-                                     DataSet.SaveToFile(false);
-
-                                     if (SiteName.CompareTo(oldName) != 0)
-                                     {
-                                         File.Delete(oldFile);
-                                     }
-                                 };
-
-                bw.RunWorkerCompleted += (o, e) =>
+                            bw.DoWork += (o, e) =>
                                              {
-                                                 EventLogger.LogInfo(DataSet, GetType().ToString(), "Site saved. Site name: " + DataSet.Site.Name);
+                                                 var oldFile = DataSet.SaveLocation;
+                                                 var oldName = DataSet.Site.Name;
+                                                 DataSet.Site.Name = SiteName;
+                                                 DataSet.SaveToFile(false);
 
-                                                 CreateEditDeleteVisible = Visibility.Visible;
-                                                 DoneCancelVisible = Visibility.Collapsed;
-                                                 DoneCancelEnabled = true;
-                                                 SiteControlsEnabled = false;
-                                                 ApplicationCursor = Cursors.Arrow;
-
-                                                 if (!IsNewSite) return;
-
-                                                 WasCompleted = true;
-                                                 TryClose();
+                                                 if (SiteName.CompareTo(oldName) != 0)
+                                                 {
+                                                     File.Delete(oldFile);
+                                                 }
                                              };
 
-                ApplicationCursor = Cursors.Wait;
-                DoneCancelEnabled = false;
-                bw.RunWorkerAsync();
+                            bw.RunWorkerCompleted += (o, e) =>
+                                                         {
+                                                             EventLogger.LogInfo(DataSet, GetType().ToString(), "Site saved. Site name: " + DataSet.Site.Name);
 
+                                                             CreateEditDeleteVisible = Visibility.Visible;
+                                                             DoneCancelVisible = Visibility.Collapsed;
+                                                             DoneCancelEnabled = true;
+                                                             SiteControlsEnabled = false;
+                                                             ApplicationCursor = Cursors.Arrow;
+
+                                                             if (!IsNewSite) return;
+
+                                                             WasCompleted = true;
+                                                             TryClose();
+                                                         };
+
+                            ApplicationCursor = Cursors.Wait;
+                            DoneCancelEnabled = false;
+                            bw.RunWorkerAsync();
+
+                        
+                    
+                }
+                catch (Exception e)
+                {
+                    Common.ShowMessageBox("Error", e.Message, false, true);
+                    EventLogger.LogError(DataSet, GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
+                }
             }
-            catch (Exception e)
-            {
-                Common.ShowMessageBox("Error", e.Message, false, true);
-                EventLogger.LogError(DataSet, GetType().ToString(), "Tried to create site but failed. Details: " + e.Message);
-            }
-        }
+        
 
         public void BtnSiteCancel()
         {
@@ -676,16 +716,8 @@ namespace IndiaTango.ViewModels
             SiteControlsEnabled = true;
         }
 
-        public void BtnSiteDelete()
+        public void BtnSiteClose()
         {
-            if (!Common.Confirm("Confirm Delete", "Are you sure you want to delete this site?")) return;
-
-            EventLogger.LogInfo(DataSet, GetType().ToString(), "Site deleted.");
-
-            if (File.Exists(DataSet.SaveLocation))
-                File.Delete(DataSet.SaveLocation);
-
-            Common.ShowMessageBox("Site Management", "Site successfully removed.", false, false);
             TryClose();
         }
 
@@ -704,7 +736,7 @@ namespace IndiaTango.ViewModels
             {
                 string siteOwner, siteName, siteCountry, siteGPSLat, siteGPSLong, siteGPSGrid, siteElevation, siteContactName, siteContactNumber, siteContactEmail, siteContactOrginisation;
                 OpenFileDialog openMeta = new OpenFileDialog();
-                openMeta.Filter = @"Meta Files|*.meta|All Files|*.*;";
+                openMeta.Filter = @"Meta Files|*.txt|All Files|*.*;";
                 if (openMeta.ShowDialog() == DialogResult.OK)
                 {
 
@@ -721,17 +753,15 @@ namespace IndiaTango.ViewModels
                         siteGPSLong = CleanMetaIn(reader.ReadLine(), 19);
                         siteGPSGrid = CleanMetaIn(reader.ReadLine(), 17);
                         siteElevation = CleanMetaIn(reader.ReadLine(), 17);
-                        siteCountry = CleanMetaIn(reader.ReadLine(), 8);
+                        siteCountry = CleanMetaIn(reader.ReadLine(), 9);
                         reader.ReadLine(); // Throwing away contact header
                         siteContactName = CleanMetaIn(reader.ReadLine(), 6);
                         siteContactOrginisation = CleanMetaIn(reader.ReadLine(), 14);
                         siteContactNumber = CleanMetaIn(reader.ReadLine(), 7);
                         siteContactEmail = CleanMetaIn(reader.ReadLine(), 7);
-                        //sitePropNotes = reader.ReadToEnd();
                         numSensors = reader.ReadLine();
 
                         iss = Int32.Parse(CleanMetaIn(numSensors, 19));
-                        int indexOfSensor;
                         if(iss == _dataSet.Sensors.Count)
                         {
 
@@ -798,21 +828,29 @@ namespace IndiaTango.ViewModels
                         }
                            
                         string checkNext = reader.ReadLine();
-                        if (checkNext.Equals("Dataset notes:"))
+                        if (checkNext.Equals("Dataset Notes"))
                         {
+                            if (DataSet.Site.DataEditingNotes == null)
+                                DataSet.Site.DataEditingNotes = new Dictionary<DateTime, string>();
                             loopStr = reader.ReadLine();
                             while (!string.IsNullOrEmpty(loopStr))
                             {
                                 DataSet.Site.DataEditingNotes.Add(DateTime.Now, loopStr);
+                                loopStr = reader.ReadLine();
+
                             }
                         }
+                                 
                         checkNext = reader.ReadLine();
-                        if (checkNext.Equals("Site notes:"))
+                        if (checkNext.Equals("Site Notes"))
                         {
+                            if (Notes == null)
+                               Notes = " ";
                             loopStr = reader.ReadLine();
                             while (!string.IsNullOrEmpty(loopStr))
                             {
-                                DataSet.Site.SiteNotes += loopStr;
+                                Notes = Notes + loopStr;
+                                loopStr = reader.ReadLine();
                             }
                         }
 
@@ -833,7 +871,7 @@ namespace IndiaTango.ViewModels
                             contactList.Add(siteContact);
                             Contact.ExportAll(contactList);
                         }
-                        PrimaryContact = siteContact;
+                     PrimaryContact = siteContact;
                         GridSystem = siteGPSGrid;
                         Latitude = siteGPSLat;
                         Longitude = siteGPSLong;
@@ -841,6 +879,7 @@ namespace IndiaTango.ViewModels
                         Elevation = siteElevation;
                         Owner = siteOwner;
                         CountryCode = siteCountry;
+                        
 
         
                     }

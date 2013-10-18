@@ -160,7 +160,7 @@ namespace IndiaTango.Models
 
 
             askUser.ShowComboBox = false;
-            askUser.Message = "Please Enter Your Desired Username";
+            askUser.Message = "Please enter your username (this will be used to log changes made to the data)";
             askUser.Title = "Add New User";
 
             windowManager.ShowDialog(askUser);

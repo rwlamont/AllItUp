@@ -240,7 +240,7 @@ namespace IndiaTango.Models
                 {
                     var stateToUse = (exportRaw) ? sensor.RawData : sensor.CurrentState;
 
-                    //Construct the column headings (Sensor names)
+                    //Construct the column headings (Sensor siteNames)
                     columnHeadings += del + ConstructHeader(sensor);
                     var i = data.StartTimeStamp;
                     while (i <= data.EndTimeStamp)
@@ -391,7 +391,7 @@ namespace IndiaTango.Models
 
                 if (data.Site.PrimaryContact != null)
                 {
-                    writer.WriteLine("Contact:");
+                    writer.WriteLine("Contact");
                     writer.WriteLine("Name: " + data.Site.PrimaryContact.FirstName + " " +
                                      data.Site.PrimaryContact.LastName);
                     writer.WriteLine("Organisation: " + data.Site.PrimaryContact.Business);
@@ -429,7 +429,7 @@ namespace IndiaTango.Models
                         writer.WriteLine();
                     }
                 }
-                writer.WriteLine("Dataset notes:\r\n");
+                writer.WriteLine("Dataset Notes\r\n");
                 if (data.Site.DataEditingNotes != null)
                 {
                     foreach (var note in data.Site.DataEditingNotes)
@@ -438,7 +438,7 @@ namespace IndiaTango.Models
                     }
                 }
                 writer.WriteLine();
-                writer.WriteLine("Site notes:\r\n" + data.Site.SiteNotes);
+                writer.WriteLine("Site Notes\r\n" + data.Site.SiteNotes);
                 
                 Debug.WriteLine(metaDataFilePath);
                 writer.Close();

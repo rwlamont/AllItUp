@@ -308,7 +308,7 @@ namespace IndiaTango.Models
                 return false;
 
             var site = obj as Site;
-            bool ctwo, cthree;
+            bool ctwo;
 
             if (site.Events.Count != Events.Count)
                 return false; // Must have compatible length lists

@@ -465,7 +465,7 @@ namespace IndiaTango.Models
         public Sensor Sensor;
     }
     /// <summary>
-    /// Class for returning of parameter abrev or full names
+    /// Class for returning of parameter abrev or full siteNames
     /// </summary>
     public class ParameterValues
     {
@@ -693,7 +693,7 @@ namespace IndiaTango.Models
 
         } 
     }
-    // Full names of all of the paramaters. Order is the same as in ParameterAbrev, if modyfing make sure it stays the same
+    // Full siteNames of all of the paramaters. Order is the same as in ParameterAbrev, if modyfing make sure it stays the same
     public enum  ParameterFull
     {
         Barometric_Pressure,
@@ -754,7 +754,7 @@ namespace IndiaTango.Models
         Flow_Volume
     };
 
-    // Abbreviated names of all of the paramaters. Order is the same as in ParameterFull, if modyfing make sure it stays the same
-    public enum ParameterAbrev { BaroP, BmAtt, BmTran, CDOM, Cl, CO2A, Cond, CondSp, DCO2, DOC, DOconc, DOsat, FlChl, FlPhy, HFlxEv, HFlxSn, Kd, NH4, NO3, ORP, pH, PO4, PpHail, PpRain, PpT, RadLWD, RadPAR, RadSWD, RadSWP, RadTD, RadUV, RelH, Sal, Snow, SoilT, TmpAir, TmpDew, TmpWtr, Turb, VBatLg, VBatR, VP, VPDef, VPSat, VSol, WaveHt, WavePd, WndDir, WndDrP, WndMax, WndMin, WndSpd, LvlDpt, WtrVlH, WtrVlV, FlwVol }; // Abreviated names of all of the parameters
+    // Abbreviated siteNames of all of the paramaters. Order is the same as in ParameterFull, if modyfing make sure it stays the same
+    public enum ParameterAbrev { BaroP, BmAtt, BmTran, CDOM, Cl, CO2A, Cond, CondSp, DCO2, DOC, DOconc, DOsat, FlChl, FlPhy, HFlxEv, HFlxSn, Kd, NH4, NO3, ORP, pH, PO4, PpHail, PpRain, PpT, RadLWD, RadPAR, RadSWD, RadSWP, RadTD, RadUV, RelH, Sal, Snow, SoilT, TmpAir, TmpDew, TmpWtr, Turb, VBatLg, VBatR, VP, VPDef, VPSat, VSol, WaveHt, WavePd, WndDir, WndDrP, WndMax, WndMin, WndSpd, LvlDpt, WtrVlH, WtrVlV, FlwVol }; // Abreviated siteNames of all of the parameters
         
 }

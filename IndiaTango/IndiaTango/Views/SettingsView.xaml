@@ -27,7 +27,7 @@
         </StackPanel>-->
         <StackPanel Grid.Row="3" Margin="10 0" Orientation="Horizontal">
             <CheckBox Margin="0 5" Content="Auto save" VerticalAlignment="Center" IsChecked="{Binding AutoSaveEnabled}" />
-            <wpf:IntegerUpDown Margin="5" Width="50" Value="{Binding AutoSaveInterval}" IsEnabled="{Binding AutoSaveEnabled}" VerticalAlignment="Top" />
+            <wpf:IntegerUpDown Margin="5" Width="50" Value="{Binding AutoSaveInterval}" IsEnabled="{Binding AutoSaveEnabled}" VerticalAlignment="Top" DataContext="{Binding}" Minimum="1" />
             <TextBlock Margin="5" VerticalAlignment="Center" Text="Auto save interval (mins)" IsEnabled="{Binding AutoSaveEnabled}"/>
         </StackPanel>
         

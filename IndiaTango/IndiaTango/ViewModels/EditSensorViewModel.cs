@@ -323,7 +323,7 @@ namespace IndiaTango.ViewModels
         {
             Editing = false;
 
-            //Force the damn list box to update the sensor names
+            //Force the damn list box to update the sensor siteNames
             List<ListedSensor> old = AllSensors;
             AllSensors = new List<ListedSensor>();
             AllSensors = old;

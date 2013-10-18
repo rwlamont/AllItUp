@@ -118,8 +118,7 @@ namespace IndiaTango.ViewModels
             var dialog = new FolderBrowserDialog();
             dialog.SelectedPath = Common.UserExportRoot;
             dialog.Description = "Set the folder to export to";
-            //dialog.Filter = ExportFormat.TSV.FilterText + "|" + ExportFormat.GLN.FilterText; // Add in surrport for gln in the file format
-            
+                        
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 string startDate = Dataset.StartTimeStamp.Year.ToString() + Dataset.StartTimeStamp.Month.ToString();
@@ -134,7 +133,7 @@ namespace IndiaTango.ViewModels
                 }
                 
                 var countryCode = CountriesHelper.GetCode(Dataset.Site.CountryName);
-                var filePath = dialog.SelectedPath + "\\" + Dataset.Site.Name + countryCode  + startDate + "_" + endDate + ExportFor.Substring(ExportFor.Length - Math.Min(4,ExportFor.Length));
+                var filePath = dialog.SelectedPath + "\\" + Dataset.Site.Name + countryCode + startDate + "_" + endDate + ExportFor.Substring(ExportFor.Length - Math.Min(4,ExportFor.Length));
                 try
                 {
                     DatasetExporter.Export(Dataset, filePath, ExportFormat.CSV, IncludeEmptyLines,

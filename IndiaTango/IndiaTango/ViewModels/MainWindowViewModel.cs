@@ -372,7 +372,7 @@ namespace IndiaTango.ViewModels
         #region Public Properties
 
         /// <summary>
-        /// The list of site names
+        /// The list of site siteNames
         /// </summary>
         public string[] SiteNames
         {
@@ -3315,6 +3315,11 @@ namespace IndiaTango.ViewModels
         /// </summary>
         public void UpdateSelectedSite(bool askToSaveFirst, bool forceUpdate)
         {
+            if (_chosenSelectedIndex <= -1)
+            {
+                return;
+            }
+
             if (_chosenSelectedIndex == 0)
             {
                 CreateNewSite();
@@ -3324,7 +3329,7 @@ namespace IndiaTango.ViewModels
             if (!DataSetFiles.Any())
                 CurrentDataset = null;
 
-            if (!forceUpdate && CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation)
+            if (!forceUpdate && CurrentDataset != null && DataSetFiles[_chosenSelectedIndex - 1] == CurrentDataset.SaveLocation) // That line bugs out
                 return;
 
             _sensorsToGraph.Clear();
