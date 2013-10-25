@@ -499,6 +499,8 @@ namespace IndiaTango.Models
                     for (var i = 0; i < exportedFiles.Length - 2; i++)
                     {
                         File.Delete(exportedFiles[i]);
+                        string s = Path.GetDirectoryName(exportedFiles[i]);
+                        Directory.Delete(Path.GetDirectoryName(exportedFiles[i]));
                     }
                 }
 

@@ -92,7 +92,7 @@ namespace IndiaTango.Models
                     {
                         Debug.Print("{0} is not a dateTimeComponent", header);
 
-                        if(header.Contains("_"))
+                        if (header.Contains("_") && header.Substring(2, 5).Contains('_'))
                         {
 
                         string[] hdrSplit = header.Split('_');

@@ -305,8 +305,8 @@ namespace IndiaTango.ViewModels
         /// <returns></returns>
         private bool siteNameIsUnique(string name)
         {
-            
-            if (name == "New Site")
+            int i = 0;
+            if (name == "New Site" || name == DataSet.Site.Name)
             {
                 return true;
             }
@@ -318,10 +318,17 @@ namespace IndiaTango.ViewModels
             {
                 string j = s.Substring(5);
                 if (j == name)
-                    return false;
+                    i++;
             }
-                        
-            return true;
+
+            if (i < 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
@@ -752,7 +759,7 @@ namespace IndiaTango.ViewModels
                         siteGPSLat = CleanMetaIn(reader.ReadLine(), 19);
                         siteGPSLong = CleanMetaIn(reader.ReadLine(), 19);
                         siteGPSGrid = CleanMetaIn(reader.ReadLine(), 17);
-                        siteElevation = CleanMetaIn(reader.ReadLine(), 17);
+                        siteElevation = CleanMetaIn(reader.ReadLine(), 18);
                         siteCountry = CleanMetaIn(reader.ReadLine(), 9);
                         reader.ReadLine(); // Throwing away contact header
                         siteContactName = CleanMetaIn(reader.ReadLine(), 6);
@@ -885,7 +892,7 @@ namespace IndiaTango.ViewModels
                     }
                     catch (Exception excep)
                     {
-                        System.Windows.MessageBox.Show(excep.ToString());
+                        System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in\nError Message:\n " + excep.ToString());
                     }
 
                 }

@@ -66,12 +66,12 @@ namespace IndiaTango.Models
         public static string DatasetExportLocation(Dataset dataset)
         {
             var timestamp = DateTime.Now;
-            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name, timestamp.ToString("yyyy")+timestamp.ToString("MM")+timestamp.ToString("dd"));
+            var directory = Path.Combine(AppDataPath, "Backups", "Exports", dataset.Site.Name);
 
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             
-            return Path.Combine(directory, timestamp.ToString("HHmmss"));
+            return Path.Combine(directory, timestamp.ToString("ddhhmmss"));
         }
         public static string AppDataPath
         {

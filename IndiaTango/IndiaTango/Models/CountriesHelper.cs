@@ -44,11 +44,9 @@ namespace IndiaTango.Models
         {
             if (!File.Exists(FileLocation))
             {
-                _countries = GenerateCountries();
+                GenerateCountries();
             }
-            else
-            {
-                _countries = new ObservableCollection<countryCodes>();
+              _countries = new ObservableCollection<countryCodes>();
                 string line;
                 string[] lineparts;
                 try
@@ -76,11 +74,11 @@ namespace IndiaTango.Models
                 {
                     System.Windows.MessageBox.Show(excep.ToString());
                 }
-            }
+            
         }
 
        
-        private static ObservableCollection<countryCodes> GenerateCountries()
+        private static void GenerateCountries()
         {
             var abrevs = new List<countryCodes>();
             _countries = new ObservableCollection<countryCodes>();
@@ -88,32 +86,13 @@ namespace IndiaTango.Models
 
             if (File.Exists(abrevsFile))
             {
-                string line;
-                string[] lineparts;
-                try
-                {
-                    StreamReader reader = new StreamReader(abrevsFile);
+                if (File.Exists(FileLocation))
+                    File.Delete(FileLocation);
 
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        countryCodes newCountry = new countryCodes();
-                        lineparts = line.Split(',');
-                        if (lineparts.Count() >= 2)
-                        {
-                            newCountry.countryName = lineparts[1];
-                            newCountry.countryCode = lineparts[0];
-                            _countries.Add(newCountry);
-                        }
-                    }
-                }
-                catch (System.Exception excep)
-                {
-                    System.Windows.MessageBox.Show(excep.ToString());
-                }
+                File.Copy(abrevsFile,FileLocation);
             }
 
-            return new ObservableCollection<countryCodes>(abrevs);
-        }
+     }
 
         public static ObservableCollection<string> CountriesNames()
         {
@@ -128,7 +107,7 @@ namespace IndiaTango.Models
 
         public static string GetCode(string p)
         {
-            foreach (countryCodes c in Countries)
+       foreach (countryCodes c in Countries)
             {
                 if (c.countryName.Equals(p))
                 {
@@ -137,7 +116,7 @@ namespace IndiaTango.Models
                 }
             }
 
-            return "()";
+            return "()";     
 
         }
     }
