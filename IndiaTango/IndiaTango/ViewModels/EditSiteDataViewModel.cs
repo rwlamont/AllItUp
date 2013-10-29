@@ -774,7 +774,7 @@ namespace IndiaTango.ViewModels
 
                         string header = reader.ReadLine();
                         string[] arr4 = new string[iss + 1];
-                        for (int i = 0; i <= iss; i++)
+                        for (int i = 0; i < iss; i++)
                         {
                             header = reader.ReadLine();
                             
@@ -833,7 +833,6 @@ namespace IndiaTango.ViewModels
                             }while(!string.IsNullOrEmpty(loopStr));
                             }
                         }
-                           
                         string checkNext = reader.ReadLine();
                         if (checkNext.Equals("Dataset Notes"))
                         {
