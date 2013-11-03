@@ -1724,7 +1724,7 @@ namespace IndiaTango.ViewModels
                                                                                           "Applied formula: {0} [Formula:{1}]", reason, manualFormulaTextBox.Text));
 
                                                     ApplicationCursor = Cursors.Arrow;
-                                                    EventLogger.LogInfo(_currentDataset, "Formula Applied", "Formula " + manualFormulaTextBox.Text + "applied to sensors." + reason);
+                                                    EventLogger.LogInfo(_currentDataset, "Formula Applied", "Formula " + manualFormulaTextBox.Text + "applied to sensors. (" + reason.ID + ") " + reason.Reason);
                                                     Common.ShowMessageBox("Formula applied", "The formula was successfully applied to the sensor(s) involved.",
                                                                           false, false);
                                                     var sensorsUsed = formula.SensorsUsed.Select(x => x.Sensor);

@@ -767,7 +767,22 @@ namespace IndiaTango.ViewModels
                         siteContactNumber = CleanMetaIn(reader.ReadLine(), 7);
                         siteContactEmail = CleanMetaIn(reader.ReadLine(), 7);
                         numSensors = reader.ReadLine();
-
+                        if (String.IsNullOrWhiteSpace(siteContactName))
+                        {
+                            siteContactName = ". .";
+                        }
+                        if (String.IsNullOrWhiteSpace(siteContactNumber))
+                        {
+                            siteContactNumber = " ";
+                        }
+                        if (String.IsNullOrWhiteSpace(siteContactEmail))
+                        {
+                            siteContactEmail = " ";
+                        }
+                        if (String.IsNullOrWhiteSpace(siteContactOrginisation))
+                        {
+                            siteContactOrginisation = " ";
+                        }
                         iss = Int32.Parse(CleanMetaIn(numSensors, 19));
                         if(iss == _dataSet.Sensors.Count)
                         {
@@ -869,6 +884,7 @@ namespace IndiaTango.ViewModels
                         var oldFile = DataSet.SaveLocation;
                         File.Delete(oldFile);
                         var names = siteContactName.Split(' ');
+                        
                         Contact siteContact = new Contact(names[0], names[1], siteContactEmail, siteContactOrginisation, siteContactNumber, 12);
                         OwnerHelper.Add(siteOwner);
                         ObservableCollection<Contact> contactList = Contact.ImportAll();

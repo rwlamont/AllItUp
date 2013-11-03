@@ -144,7 +144,7 @@ namespace IndiaTango.Models
         /// <returns>If the email is valid or not</returns>
         private static bool EmailIsValid(string email)
         {
-            var portions = email.Split('@');
+            /*var portions = email.Split('@');
             if (portions.Length == 2)
             {
                 if (portions[0].Length > 0 && portions[1].Length > 0)
@@ -156,7 +156,8 @@ namespace IndiaTango.Models
                     }
                 }
             }
-            return false;
+            return false; */
+            return true;
         }
         #endregion
 

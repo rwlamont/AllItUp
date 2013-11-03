@@ -159,7 +159,7 @@ namespace IndiaTango.Models
   
             using (TextWriter tw = new StreamWriter(changesFilePath, true))
             {
-                tw.WriteLine("Log of change reasons for associated file" + Path.GetFileNameWithoutExtension(filePath));
+                tw.WriteLine("Log of change reasons for associated file " + Path.GetFileNameWithoutExtension(filePath));
                 //Copy all the files into one File Log
                 foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
                     SearchOption.AllDirectories))
