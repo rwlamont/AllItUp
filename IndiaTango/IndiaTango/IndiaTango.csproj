@@ -191,6 +191,7 @@
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\HeatMapViewModel.cs" />
+    <Compile Include="ViewModels\LoadInDataMetaViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\MatchToExistingSensorsViewModel.cs" />
@@ -221,6 +222,9 @@
     </Compile>
     <Compile Include="Views\HeatMapView.xaml.cs">
       <DependentUpon>HeatMapView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoadInDataMetaView.xaml.cs">
+      <DependentUpon>LoadInDataMetaView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LogWindowView.xaml.cs">
       <DependentUpon>LogWindowView.xaml</DependentUpon>
@@ -322,6 +326,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HeatMapView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LoadInDataMetaView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

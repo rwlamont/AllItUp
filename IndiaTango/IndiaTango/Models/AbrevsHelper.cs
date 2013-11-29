@@ -30,7 +30,10 @@ namespace IndiaTango.Models
                 return _abrevs;
             }
         }
-
+        /// <summary>
+        /// Adds a new abreviation  
+        /// </summary>
+        /// <param name="abrevs">the abreviation</param>
         public static void Add(string abrevs)
         {
             if (!_abrevs.Contains(abrevs))

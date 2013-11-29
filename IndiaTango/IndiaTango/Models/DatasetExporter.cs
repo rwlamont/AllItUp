@@ -398,6 +398,7 @@ namespace IndiaTango.Models
                     writer.WriteLine("Phone: " + data.Site.PrimaryContact.Phone);
                     writer.WriteLine("Email: " + data.Site.PrimaryContact.Email);
                 }
+
                 else
                 {
                     writer.WriteLine("Contact:");

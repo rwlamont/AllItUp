@@ -138,6 +138,7 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
+            
             _dateAnnotator = new DateAnnotationBehaviour { IsEnabled = true };
             behaviourManager.Behaviours.Add(_dateAnnotator);
 
@@ -3088,6 +3089,14 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        public void ImportDataMeta()
+        {
+            var importWindow = (LoadInDataMetaViewModel)_container.GetInstance(typeof(LoadInDataMetaViewModel), "LoadInDataMetaViewModel");
+            if (importWindow == null)
+                return;
+            
+            _windowManager.ShowDialog(importWindow);
+        }
         /// <summary>
         /// Copies a site to the appdata
         /// </summary>
