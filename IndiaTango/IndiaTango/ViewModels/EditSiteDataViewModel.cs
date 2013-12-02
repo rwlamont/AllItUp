@@ -685,7 +685,7 @@ namespace IndiaTango.ViewModels
                                                              if (!IsNewSite) return;
 
                                                              WasCompleted = true;
-                                                             TryClose();
+                                                             //this.TryClose();
                                                          };
 
                             ApplicationCursor = Cursors.Wait;
@@ -741,18 +741,25 @@ namespace IndiaTango.ViewModels
         {
              if (DataSet != null)
             {
-                string siteOwner, siteName, siteCountry, siteGPSLat, siteGPSLong, siteGPSGrid, siteElevation, siteContactName, siteContactNumber, siteContactEmail, siteContactOrginisation;
+                
                 OpenFileDialog openMeta = new OpenFileDialog();
                 openMeta.Filter = @"Meta Files|*.txt|All Files|*.*;";
                 if (openMeta.ShowDialog() == DialogResult.OK)
                 {
+                    LoadFromMeta(openMeta.FileName);
+                }
+             }
+        }
 
+       public void LoadFromMeta(string filename)
+       {
+           string siteOwner, siteName, siteCountry, siteGPSLat, siteGPSLong, siteGPSGrid, siteElevation, siteContactName, siteContactNumber, siteContactEmail, siteContactOrginisation;
                     try
                     {
 
                         int iss;
                         string numSensors, loopStr;
-                        StreamReader reader = new StreamReader(openMeta.FileName);
+                        StreamReader reader = new StreamReader(filename);
                         reader.ReadLine(); // Throwing away asscoiated file
                         siteName = CleanMetaIn(reader.ReadLine(), 11);
                         siteOwner = CleanMetaIn(reader.ReadLine(), 7);
@@ -910,12 +917,9 @@ namespace IndiaTango.ViewModels
                         System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in\nError Message:\n " + excep.ToString());
                     }
 
-                }
-            }
-            else
-            {
-                System.Windows.MessageBox.Show("Please Load a Dataset first", "No Dataset Loaded");
-            }   
+                
+            
+ 
         }
         
        

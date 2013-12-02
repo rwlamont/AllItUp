@@ -114,7 +114,7 @@ namespace IndiaTango.ViewModels
                 // Update the contact
                 try
                 {
-                    // TODO: make this pretty!
+                    
                     AllContacts.Remove(Contact);
 
                     Contact.Title = ContactTitle;

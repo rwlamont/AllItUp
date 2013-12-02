@@ -1292,7 +1292,7 @@ namespace IndiaTango.ViewModels
                 _dataSetFiles = null;
                 NotifyOfPropertyChange(() => SiteNames);
             };
-
+            
             _windowManager.ShowDialog(view);
             NotifyOfPropertyChange(() => EditingNotes);
             return view.WasCompleted;
@@ -2889,27 +2889,36 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-            var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
+           
 
             var openFileDialog = new OpenFileDialog { Filter = @"All B3 Data Files|*.csv;*.txt;*.gln|CSV Files|*.csv|TSV Files|*.txt|GLEON files|*.gln" };
 
             if (openFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
+            Import(openFileDialog.FileName);
+        }
+        /// <summary>
+        /// starts an import of data
+        /// </summary>
+        /// <param name="filename">filepath of data file</param>
+        public void Import(string filename)
+        {
+            var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
             bw.DoWork += (o, e) =>
                              {
                                  ShowProgressArea = true;
                                  ProgressIndeterminate = false;
                                  ProgressValue = 0;
                                  
-                                 var reader = new CSVReader(openFileDialog.FileName);
+                                 var reader = new CSVReader(filename);
                                  
                                  reader.ProgressChanged += (sender, args) =>
                                                                {
                                                                    ProgressValue = args.Progress;
                                                                    WaitEventString =
                                                                        string.Format("Importing from {0} {1}%",
-                                                                                     openFileDialog.FileName,
+                                                                                     filename,
                                                                                      ProgressValue);
                                                                };
                                  try
@@ -3089,6 +3098,9 @@ namespace IndiaTango.ViewModels
             bw.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Imports from a meta file and a data file
+        /// </summary>
         public void ImportDataMeta()
         {
             var importWindow = (LoadInDataMetaViewModel)_container.GetInstance(typeof(LoadInDataMetaViewModel), "LoadInDataMetaViewModel");
@@ -3096,7 +3108,94 @@ namespace IndiaTango.ViewModels
                 return;
             
             _windowManager.ShowDialog(importWindow);
+
+            if (importWindow.Success)
+            {
+                _sensorsToGraph.Clear();
+                SensorsToCheckMethodsAgainst.Clear();
+                UpdateGraph(true);
+
+                var saveFirst = false;
+
+                if (CurrentDataset != null)
+                {
+                    saveFirst = Common.Confirm("Save before closing?",
+                                               string.Format("Before we close '{0}' should we save it first?",
+                                                             CurrentDataset.Site.Name));
+                }
+
+                var bw = new BackgroundWorker();
+
+                bw.DoWork += (o, e) =>
+                {
+                    ProgressIndeterminate = true;
+                    ShowProgressArea = true;
+                    if (!saveFirst)
+                        return;
+                    EventLogger.LogInfo(CurrentDataset, "Closing Save", "Saving to file before close");
+                    WaitEventString = string.Format("Saving {0} to file", CurrentDataset.Site.Name);
+                    CurrentDataset.SaveToFile();
+                };
+                bw.RunWorkerCompleted += (o, e) =>
+                {
+                    ShowProgressArea = false;
+                    EnableFeatures();
+
+
+
+                };
+
+                DisableFeatures();
+                bw.RunWorkerAsync();
+                var newDataset =
+new Dataset(new Site(Site.NextID, "New Site", "", null, null,
+         null));
+                CurrentDataset = newDataset;
+                Import(importWindow.DataPath);
+                LoadSiteFromMeta(importWindow.MetaPath, newDataset);
+                ClearDetectedValues();
+                NotifyOfPropertyChange(() => SiteNames);
+                ChosenSelectedIndex = CurrentDataset.Site.Id + 1;
+
+            }
         }
+
+        /// <summary>
+        /// Loads in a meta file and adds it to a site
+        /// </summary>
+        /// <param name="filename">the metya file filepath</param>
+        /// <param name="attachedDataset">the dataset that its to be attached to</param>
+        /// <returns></returns>
+        public Boolean LoadSiteFromMeta(string filename, Dataset attachedDataset)
+        {
+
+
+            var view = _container.GetInstance(typeof(EditSiteDataViewModel), "EditSiteDataViewModel") as EditSiteDataViewModel;
+
+            if (view == null)
+            {
+                EventLogger.LogError(null, "Loading Site Editor", "Critical! Failed to get a View!!");
+                return false;
+            }
+
+            view.DataSet = attachedDataset;
+
+            if (attachedDataset.Site.PrimaryContact == null)
+                view.IsNewSite = true;
+            view.LoadFromMeta(filename);
+            
+            view.Deactivated += (o, e) =>
+            {
+                _dataSetFiles = null;
+                NotifyOfPropertyChange(() => SiteNames);
+            };
+
+            view.BtnSiteDone();
+            NotifyOfPropertyChange(() => EditingNotes);
+            return true;
+        
+        }
+
         /// <summary>
         /// Copies a site to the appdata
         /// </summary>

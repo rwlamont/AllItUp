@@ -18,8 +18,8 @@ namespace IndiaTango.ViewModels
         private String _dataFile;
         private String _lastPath;
         private String _fullMetaPath;
-        private string _fullDataPath;
-
+        private String _fullDataPath;
+        private bool _success; 
         public LoadInDataMetaViewModel(IWindowManager windowManager, SimpleContainer container)
         {
             _windowManager = windowManager;
@@ -35,12 +35,20 @@ namespace IndiaTango.ViewModels
             get { return "Files To Import"; }
         }
 
+        public bool Success
+        {
+            get{ return _success;}
+        }
+
+
         public string DataFile
         {
             get { return _dataFile; }
             set { _dataFile = value; NotifyOfPropertyChange(() => DataFile); }
         }
 
+        public string MetaPath { get { return _fullMetaPath; } }
+        public string DataPath { get { return _fullDataPath; } }
         public string MetaFile
         {
             get { return _metaFile; }
@@ -55,16 +63,27 @@ namespace IndiaTango.ViewModels
         #endregion
 
         #region Event Handlers
+
+        /// <summary>
+        /// Button to import the files
+        /// </summary>
         public void btnImport()
         {
-            var dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = Common.UserExportRoot;
-            dialog.Description = "Open The Date file you want";
-
-            this.TryClose();
+            //Checks to see if both a meta file and a data file have been selected
+            if(!String.IsNullOrWhiteSpace(MetaPath) && !String.IsNullOrWhiteSpace(DataPath))
+            {
+                _success = true;
+                this.TryClose();
+            }
+            else
+            {
+                Common.ShowMessageBox("Form not completed", "You have not seleceted both a meta file and a data file, please try again", true,false);
+            }
             
         }
-
+        /// <summary>
+        /// Loads a new data file
+        /// </summary>
         public void btnData()
         {
             var dialog = new OpenFileDialog{ Filter = @"All B3 Data Files|*.csv;*.txt;*.gln|CSV Files|*.csv|TSV Files|*.txt|GLEON files|*.gln" };
@@ -77,7 +96,9 @@ namespace IndiaTango.ViewModels
                 _lastPath = Path.GetDirectoryName(dialog.FileName);
             }
         }
-
+        /// <summary>
+        /// loads a new meta file
+        /// </summary>
         public void btnMeta()
         {
             var dialog = new OpenFileDialog { Filter = @"All B3 Meta Files|*.txt;|Gleon Meta Files|*.txt"};
@@ -97,6 +118,8 @@ namespace IndiaTango.ViewModels
         }
 
         #endregion
-    
+
+
+        
     }
 }
