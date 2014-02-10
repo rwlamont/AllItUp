@@ -43,6 +43,7 @@ namespace IndiaTango.Models
                 siteContactNumber = CleanMetaIn(reader.ReadLine(), 7);
                 siteContactEmail = CleanMetaIn(reader.ReadLine(), 7);
                 numSensors = reader.ReadLine();
+
                 if (String.IsNullOrWhiteSpace(siteContactName))
                 {
                     siteContactName = ". .";
@@ -65,7 +66,7 @@ namespace IndiaTango.Models
 
                     string header = reader.ReadLine();
                     string[] arr4 = new string[iss + 1];
-                    for (int i = 0; i < iss; i++)
+                    for (int i = 0; i <= iss; i++)
                     {
                         header = reader.ReadLine();
 
@@ -140,7 +141,7 @@ namespace IndiaTango.Models
                 }
 
                 string checkNext = reader.ReadLine();
-                if (checkNext.Equals("Input Notes"))
+                if (checkNext.Equals("Dataset Notes"))
                 {
                     if (input.Site.DataEditingNotes == null)
                         input.Site.DataEditingNotes = new Dictionary<DateTime, string>();
@@ -179,9 +180,7 @@ namespace IndiaTango.Models
                     Contact.ExportAll(contactList);
                 }
                 input.Site.PrimaryContact = siteContact;
-                input.Site.GpsLocation.GridSystem = siteGPSGrid;
-                input.Site.GpsLocation.DecimalDegreesLatitude = decimal.Parse(siteGPSLat);
-                input.Site.GpsLocation.DecimalDegreesLongitude = decimal.Parse(siteGPSLong);
+                input.Site.GpsLocation = new GPSCoords(decimal.Parse(siteGPSLat), decimal.Parse(siteGPSLong), siteGPSGrid);
                 input.Site.Name = siteName;
                 input.Site.Elevation = float.Parse(siteElevation);
                 input.Site.Owner = siteOwner;
@@ -192,7 +191,7 @@ namespace IndiaTango.Models
             }
             catch (Exception excep)
             {
-                System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in" );
+                System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in" + excep );
             }
             return input;
         }
