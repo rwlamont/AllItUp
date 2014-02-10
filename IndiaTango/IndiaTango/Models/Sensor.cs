@@ -28,6 +28,7 @@ namespace IndiaTango.Models
         private string _location;
         private string _position;
         private string _unit;
+        private ObservableCollection<string> _accuracyList;
         private float _maxRateOfChange;
         private int _errorThreshold;
         private Colour _colour;
@@ -898,6 +899,28 @@ namespace IndiaTango.Models
                     return _positionList;
                 }
             
+        }
+
+        /// <summary>
+        /// The accuracyType options for the sensor
+        /// </summary>
+        public ObservableCollection<string> AccuracyList
+        {
+
+            get
+            {
+
+                if (_accuracyList == null)
+                {
+                    var list = new List<string>();
+                    list.Add("Percentage");
+                    list.Add("+/-");
+                    list.Add("N/A");
+                    _accuracyList =  new ObservableCollection<string>(list);
+                }
+                return _accuracyList;
+            }
+
         }
 
         /// <summary>

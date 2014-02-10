@@ -567,25 +567,6 @@ namespace IndiaTango.ViewModels
 
         #endregion
 
-        //#region Secondary Contact
-
-        //public void BtnNewSecondary()
-        //{
-        //    _contactTypeToUpdate = 1;
-        //    NewContact();
-        //    _contactTypeToUpdate = -1;
-        //}
-
-        //public void BtnEditSecondary()
-        //{
-        //    EditContact(SecondaryContact);
-        //}
-
-        //public void BtnDelSecondary()
-        //{
-        //    DeleteContact(SecondaryContact);
-        //}
-
         //#endregion
 
         #region Images
@@ -656,7 +637,7 @@ namespace IndiaTango.ViewModels
                             DataSet.Site.PrimaryContact = PrimaryContact;
                             DataSet.Site.Elevation = float.Parse(Elevation);
                             DataSet.Site.Images = _siteImages.ToList();
-
+                            
                             var bw = new BackgroundWorker();
 
                             bw.DoWork += (o, e) =>
@@ -753,173 +734,11 @@ namespace IndiaTango.ViewModels
 
        public void LoadFromMeta(string filename)
        {
-           string siteOwner, siteName, siteCountry, siteGPSLat, siteGPSLong, siteGPSGrid, siteElevation, siteContactName, siteContactNumber, siteContactEmail, siteContactOrginisation;
-                    try
-                    {
+           MetaFileReader readIn = new MetaFileReader();
+           Dataset oldDataSet = DataSet;
+           DataSet = readIn.readMeta(oldDataSet, filename);
+           int j = oldDataSet.ActualDataPointCount;
 
-                        int iss;
-                        string numSensors, loopStr;
-                        StreamReader reader = new StreamReader(filename);
-                        reader.ReadLine(); // Throwing away asscoiated file
-                        siteName = CleanMetaIn(reader.ReadLine(), 11);
-                        siteOwner = CleanMetaIn(reader.ReadLine(), 7);
-                        siteGPSLat = CleanMetaIn(reader.ReadLine(), 19);
-                        siteGPSLong = CleanMetaIn(reader.ReadLine(), 19);
-                        siteGPSGrid = CleanMetaIn(reader.ReadLine(), 17);
-                        siteElevation = CleanMetaIn(reader.ReadLine(), 18);
-                        siteCountry = CleanMetaIn(reader.ReadLine(), 9);
-                        reader.ReadLine(); // Throwing away contact header
-                        siteContactName = CleanMetaIn(reader.ReadLine(), 6);
-                        siteContactOrginisation = CleanMetaIn(reader.ReadLine(), 14);
-                        siteContactNumber = CleanMetaIn(reader.ReadLine(), 7);
-                        siteContactEmail = CleanMetaIn(reader.ReadLine(), 7);
-                        numSensors = reader.ReadLine();
-                        if (String.IsNullOrWhiteSpace(siteContactName))
-                        {
-                            siteContactName = ". .";
-                        }
-                        if (String.IsNullOrWhiteSpace(siteContactNumber))
-                        {
-                            siteContactNumber = " ";
-                        }
-                        if (String.IsNullOrWhiteSpace(siteContactEmail))
-                        {
-                            siteContactEmail = " ";
-                        }
-                        if (String.IsNullOrWhiteSpace(siteContactOrginisation))
-                        {
-                            siteContactOrginisation = " ";
-                        }
-                        iss = Int32.Parse(CleanMetaIn(numSensors, 19));
-                        if(iss == _dataSet.Sensors.Count)
-                        {
-
-                        string header = reader.ReadLine();
-                        string[] arr4 = new string[iss + 1];
-                        for (int i = 0; i < iss; i++)
-                        {
-                            header = reader.ReadLine();
-                            
-                             
-                            int ndx = _dataSet.Sensors.FindIndex(delegate(Sensor toFind)
-                            {
-                                return toFind.Name == header;
-                            }
-                            );
-                            loopStr = reader.ReadLine();
-                            if(ndx >= 0)
-                            {
-                                do{
-
-                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Desc")
-                                {
-                                    DataSet.Sensors[ndx].Description = CleanMetaIn(loopStr, 13);
-                                    loopStr = reader.ReadLine();
-                                }
-                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Seri")
-                                {
-                                    DataSet.Sensors[ndx].CurrentMetaData.SerialNumber = CleanMetaIn(loopStr, 15);
-                                    loopStr = reader.ReadLine();
-                                }
-                                if (!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Manu")
-                                {
-                                    DataSet.Sensors[ndx].CurrentMetaData.Manufacturer = CleanMetaIn(loopStr, 14);
-                                    loopStr = reader.ReadLine();
-                                }
-                                if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0,4) == "Date")
-                                {
-                                    DataSet.Sensors[ndx].CurrentMetaData.DateOfInstallation = DateTime.Parse(CleanMetaIn(loopStr, 16));
-                                    loopStr = reader.ReadLine();
-                                }
-                                if (!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Cali")
-                                {
-                                    if(loopStr.Substring(10,2) == "n ")
-                                    {
-
-                                    DataSet.Sensors[ndx].CurrentMetaData.IdealCalibrationFrequency = TimeSpan.FromDays(Double.Parse(CleanMetaIn(loopStr, 29)));
-                                    loopStr = reader.ReadLine();
-                                    }
-                                    if(!string.IsNullOrEmpty(loopStr)&& loopStr.Substring(0,4) == "Cali" && loopStr.Substring(10,2) == "n:")
-                                    {
-                                        var calibStr = CleanMetaIn(loopStr, 12);
-                                        DateTime calibTime = new DateTime(int.Parse(calibStr.Substring(0,4)),int.Parse(calibStr.Substring(5,2)),int.Parse(calibStr.Substring(8,2)));
-                                        string[] first = calibStr.Substring(16).Split(' ');
-                                        string[] preNum = first[0].Split('-');
-                                        string[] postNum = first[2].Split('-');
-                                        postNum[1].Remove(0, 6);
-                                        DataSet.Sensors[ndx].Calibrations.Add(new Calibration(calibTime, float.Parse(preNum[0].TrimStart('[')), float.Parse(preNum[1]), float.Parse(preNum[2].TrimEnd(']')), float.Parse(postNum[0].TrimStart('[')), float.Parse(postNum[1]), float.Parse(postNum[2].TrimEnd(']'))));
-                                        loopStr = reader.ReadLine();
-                                    }
-                                }
-
-                            }while(!string.IsNullOrEmpty(loopStr));
-                            }
-                        }
-                        string checkNext = reader.ReadLine();
-                        if (checkNext.Equals("Dataset Notes"))
-                        {
-                            if (DataSet.Site.DataEditingNotes == null)
-                                DataSet.Site.DataEditingNotes = new Dictionary<DateTime, string>();
-                            loopStr = reader.ReadLine();
-                            while (!string.IsNullOrEmpty(loopStr))
-                            {
-                                DataSet.Site.DataEditingNotes.Add(DateTime.Now, loopStr);
-                                loopStr = reader.ReadLine();
-
-                            }
-                        }
-                                 
-                        checkNext = reader.ReadLine();
-                        if (checkNext.Equals("Site Notes"))
-                        {
-                            if (Notes == null)
-                               Notes = " ";
-                            loopStr = reader.ReadLine();
-                            while (!string.IsNullOrEmpty(loopStr))
-                            {
-                                Notes = Notes + loopStr;
-                                loopStr = reader.ReadLine();
-                            }
-                        }
-
-                        }
-
-                        else
-                        {
-                            Microsoft.Windows.Controls.MessageBox.Show("Could not load sensor data as meta file did not match actual number of sensors");
-                        }
-                        var oldFile = DataSet.SaveLocation;
-                        File.Delete(oldFile);
-                        var names = siteContactName.Split(' ');
-                        
-                        Contact siteContact = new Contact(names[0], names[1], siteContactEmail, siteContactOrginisation, siteContactNumber, 12);
-                        OwnerHelper.Add(siteOwner);
-                        ObservableCollection<Contact> contactList = Contact.ImportAll();
-                        if(!contactList.Contains(siteContact))
-                        {
-                            contactList.Add(siteContact);
-                            Contact.ExportAll(contactList);
-                        }
-                     PrimaryContact = siteContact;
-                        GridSystem = siteGPSGrid;
-                        Latitude = siteGPSLat;
-                        Longitude = siteGPSLong;
-                        SiteName = siteName;
-                        Elevation = siteElevation;
-                        Owner = siteOwner;
-                        CountryCode = siteCountry;
-                        
-
-        
-                    }
-                    catch (Exception excep)
-                    {
-                        System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in\nError Message:\n " + excep.ToString());
-                    }
-
-                
-            
- 
         }
         
        

@@ -2904,9 +2904,11 @@ namespace IndiaTango.ViewModels
         /// <param name="filename">filepath of data file</param>
         public void Import(string filename)
         {
-            var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
-            bw.DoWork += (o, e) =>
-                             {
+            DisableFeatures();
+            var result = new List<Sensor>();
+            //var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
+           // bw.DoWork += (o, e) =>
+                            // {
                                  ShowProgressArea = true;
                                  ProgressIndeterminate = false;
                                  ProgressValue = 0;
@@ -2923,20 +2925,21 @@ namespace IndiaTango.ViewModels
                                                                };
                                  try
                                  {
-                                     e.Result = reader.ReadSensors(bw, CurrentDataset);
+                                      result = reader.ReadSensors(null, CurrentDataset);
                                  }
                                  catch (Exception ex)
                                  {
                                      Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
-                                     e.Result = null;
+                                      result = null;
                                  }
 
 
-                             };
+                             //};
 
-            bw.RunWorkerCompleted += (o, e) =>
-                                         {
-                                             if (e.Result == null)
+          //  bw.RunWorkerCompleted += (o, e) =>
+                                        // {
+                                            
+                                             if (result == null)
                                              {
                                                  ShowProgressArea = false;
                                                  EnableFeatures();
@@ -2944,7 +2947,7 @@ namespace IndiaTango.ViewModels
                                              }
 
 
-                                             var sensors = (List<Sensor>)e.Result;
+                                             var sensors = (List<Sensor>)result;
 
                                              if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
                                              {
@@ -3093,9 +3096,10 @@ namespace IndiaTango.ViewModels
                                              NotifyOfPropertyChange(() => HighestYearLoaded);
 
                                              CurrentDataset.SaveToFile();
-                                         };
-            DisableFeatures();
-            bw.RunWorkerAsync();
+                                        // };
+            
+  
+
         }
 
         /// <summary>
@@ -3148,11 +3152,10 @@ namespace IndiaTango.ViewModels
                 DisableFeatures();
                 bw.RunWorkerAsync();
                 var newDataset =
-new Dataset(new Site(Site.NextID, "New Site", "", null, null,
-         null));
+                new Dataset(new Site(Site.NextID, "New Site", "", null, null,null));
                 CurrentDataset = newDataset;
                 Import(importWindow.DataPath);
-                LoadSiteFromMeta(importWindow.MetaPath, newDataset);
+                LoadSiteFromMeta(importWindow.MetaPath, CurrentDataset);
                 ClearDetectedValues();
                 NotifyOfPropertyChange(() => SiteNames);
                 ChosenSelectedIndex = CurrentDataset.Site.Id + 1;
@@ -3814,7 +3817,7 @@ new Dataset(new Site(Site.NextID, "New Site", "", null, null,
         {
             ActionsEnabled = _previousActionsStatus;
         }
-
+       
         /// <summary>
         /// Disables actions
         /// </summary>

@@ -81,6 +81,7 @@ namespace IndiaTango.ViewModels
             }
             
         }
+
         /// <summary>
         /// Loads a new data file
         /// </summary>
@@ -96,6 +97,7 @@ namespace IndiaTango.ViewModels
                 _lastPath = Path.GetDirectoryName(dialog.FileName);
             }
         }
+
         /// <summary>
         /// loads a new meta file
         /// </summary>

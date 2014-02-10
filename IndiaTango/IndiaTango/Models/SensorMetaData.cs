@@ -51,6 +51,8 @@ namespace IndiaTango.Models
         private string _manufacturer;
         [ProtoMember(5)]
         private TimeSpan _idealCalibrationFrequency;
+        [ProtoMember(6)]
+        private string _accuracyType;
         #endregion
 
         #region Public Properties
@@ -64,6 +66,21 @@ namespace IndiaTango.Models
             {
                 _accuracy = value;
                 FirePropertyChanged("Accuracy");
+            }
+        }
+
+        public string AccuracyType
+        {
+            get { return _accuracyType; }
+            set
+            {
+                _accuracyType = value;
+                if (_accuracyType == "N/A")
+                {
+                    Accuracy = 0;
+                }
+
+                FirePropertyChanged("AccuracyType");
             }
         }
 
@@ -153,4 +170,5 @@ namespace IndiaTango.Models
             return SerialNumber;
         }
     }
+
 }

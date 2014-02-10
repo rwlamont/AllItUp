@@ -120,7 +120,6 @@ namespace IndiaTango.Models
             {
                 throw new Exception("Cannot Overwrite Existing Data");
             }
-            //filePath = Path.ChangeExtension(filePath, format.Extension);
             string metaDataFilePath = Path.ChangeExtension(filePath, "_") + "Metadata.txt";
             string changeMatrixFilePath = Path.ChangeExtension(filePath, "_") + "ChangesMatrix.txt";
             var changesFilePath = Path.ChangeExtension(filePath, "_") + "Changes Log.txt";

@@ -513,6 +513,7 @@ namespace IndiaTango.Models
                     toReturn = "m";
                     break;
                 case "Height":
+                
                     toReturn = "h";
                     break;
 
@@ -580,8 +581,9 @@ namespace IndiaTango.Models
         /// <param name="toCompare">the abreviation we want to find the suggested unit for</param>
         /// <returns></returns>
         public string getUnitAbrev(ParameterAbrev toCompare)
-        {
-            string toReturn = "";
+       {
+           #region SensorParsers
+           string toReturn = "";
             switch(toCompare)
             {
                 case ParameterAbrev.TmpWtr:
@@ -687,6 +689,7 @@ namespace IndiaTango.Models
                 case ParameterAbrev.BmTran:
                     toReturn = "%";
                     break;
+           #endregion
             }
 
             return toReturn;
