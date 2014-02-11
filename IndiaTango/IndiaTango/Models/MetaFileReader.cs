@@ -66,7 +66,7 @@ namespace IndiaTango.Models
 
                     string header = reader.ReadLine();
                     string[] arr4 = new string[iss + 1];
-                    for (int i = 0; i <= iss; i++)
+                    for (int i = 0; i < iss; i++)
                     {
                         header = reader.ReadLine();
 
@@ -136,7 +136,7 @@ namespace IndiaTango.Models
                     {
                         reader.ReadLine();
                     }
-                    while (reader.Peek() != 'I');
+                    while (reader.Peek() != 'D');
 
                 }
 
@@ -164,7 +164,9 @@ namespace IndiaTango.Models
                     {
                         input.Site.SiteNotes = input.Site.SiteNotes + loopStr;
                         loopStr = reader.ReadLine();
+
                     }
+
                 }
 
                 var oldFile = input.SaveLocation;
@@ -186,8 +188,7 @@ namespace IndiaTango.Models
                 input.Site.Owner = siteOwner;
                 input.Site.CountryName = siteCountry;
 
-
-
+               
             }
             catch (Exception excep)
             {
