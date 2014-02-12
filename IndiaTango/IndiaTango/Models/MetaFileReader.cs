@@ -61,7 +61,7 @@ namespace IndiaTango.Models
                     siteContactOrginisation = " ";
                 }
                 iss = Int32.Parse(CleanMetaIn(numSensors, 19));
-                if (iss == input.Sensors.Count)
+                if (iss == input.Sensors.Count) // check to see if the number of sensors matches whats in the meta file
                 {
 
                     string header = reader.ReadLine();
@@ -79,7 +79,8 @@ namespace IndiaTango.Models
                         loopStr = reader.ReadLine();
                         if (ndx >= 0)
                         {
-                            do
+                            do // Works out what meta data is attached to each sensor
+                                //and adds it into the correct place
                             {
 
                                 if (!string.IsNullOrEmpty(loopStr) && loopStr.Substring(0, 4) == "Desc")
@@ -132,6 +133,7 @@ namespace IndiaTango.Models
                 else
                 {
                     Microsoft.Windows.Controls.MessageBox.Show("Could not load sensor data as meta file did not match actual number of sensors");
+                    //Skip through the sensors until the notes
                     do
                     {
                         reader.ReadLine();
@@ -141,7 +143,7 @@ namespace IndiaTango.Models
                 }
 
                 string checkNext = reader.ReadLine();
-                if (checkNext.Equals("Dataset Notes"))
+                if (checkNext.Equals("Dataset Notes")) // Reasd
                 {
                     if (input.Site.DataEditingNotes == null)
                         input.Site.DataEditingNotes = new Dictionary<DateTime, string>();
@@ -155,7 +157,7 @@ namespace IndiaTango.Models
                 }
 
                 checkNext = reader.ReadLine();
-                if (checkNext.Equals("Site Notes"))
+                if (checkNext.Equals("Site Notes")) // Rerads and add the site notes
                 {
                     if (input.Site.SiteNotes == null)
                         input.Site.SiteNotes = " ";
@@ -192,7 +194,7 @@ namespace IndiaTango.Models
             }
             catch (Exception excep)
             {
-                System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in" + excep );
+                System.Windows.MessageBox.Show("There was an error importing the meta file, please make sure that it is correctly formated and all parts are filled in" );
             }
             return input;
         }
