@@ -96,7 +96,7 @@ namespace IndiaTango.Models
                         {
 
                         string[] hdrSplit = header.Split('_');
-                        if (!String.IsNullOrWhiteSpace(hdrSplit[0]) || !String.IsNullOrWhiteSpace(hdrSplit[1]))
+                        if (!String.IsNullOrWhiteSpace(hdrSplit[0]) || !String.IsNullOrWhiteSpace(hdrSplit[1]) && hdrSplit[1].Contains('('))
                         {
                             String[] hdrSplitTwo = hdrSplit[1].Split('(');
                             string sen;

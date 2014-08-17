@@ -2906,9 +2906,7 @@ namespace IndiaTango.ViewModels
         {
             DisableFeatures();
             var result = new List<Sensor>();
-            //var bw = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
-           // bw.DoWork += (o, e) =>
-                            // {
+
                                  ShowProgressArea = true;
                                  ProgressIndeterminate = false;
                                  ProgressValue = 0;
@@ -2933,11 +2931,6 @@ namespace IndiaTango.ViewModels
                                       result = null;
                                  }
 
-
-                             //};
-
-          //  bw.RunWorkerCompleted += (o, e) =>
-                                        // {
                                             
                                              if (result == null)
                                              {
@@ -3096,8 +3089,7 @@ namespace IndiaTango.ViewModels
                                              NotifyOfPropertyChange(() => HighestYearLoaded);
 
                                              CurrentDataset.SaveToFile();
-                                        // };
-            
+                                         
   
 
         }
@@ -3198,6 +3190,7 @@ namespace IndiaTango.ViewModels
             return true;
         
         }
+        
 
         /// <summary>
         /// Copies a site to the appdata
@@ -4074,7 +4067,7 @@ namespace IndiaTango.ViewModels
 
         /// <summary>
         /// Shows the current sites information view
-        /// </summary>
+        /// </summary>k
         public void ShowCurrentSiteInformation()
         {
             ShowSiteInformation(CurrentDataset);
