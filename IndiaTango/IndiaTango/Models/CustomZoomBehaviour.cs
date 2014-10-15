@@ -43,6 +43,12 @@ namespace IndiaTango.Models
         public event ZoomRequested ZoomRequested;
 
         /// <summary>
+        /// Fired when a zoom has been requested by the user
+        /// </summary>
+        public event LastZoomRequested LastZoomRequested;
+
+
+        /// <summary>
         /// Fired when the zoom has been requested to be reset
         /// </summary>
         public event ZoomResetRequested ZoomResetRequested;
@@ -79,6 +85,17 @@ namespace IndiaTango.Models
             position = EnsurePointIsOnChart(position);
 
             ChangeZoomRectangle(position);
+        }
+
+        public void LastZoom()
+        {
+            RequestLastZoom();
+
+        }
+
+        public override void MouseWheel(Point position, double delta)
+        {
+            RequestLastZoom();
         }
 
         public override void MouseLeftButtonUp(Point position)
@@ -157,10 +174,23 @@ namespace IndiaTango.Models
             OnZoomRequested(this, new ZoomRequestedArgs(x1, x2, (float)y1, (float)y2));
         }
 
+        private void RequestLastZoom()
+        {
+            var y1 = (Double)0.0;
+            var y2 = (Double)0.0;
+
+            OnLastZoomRequested(this, new ZoomRequestedArgs(DateTime.Now, DateTime.Now, (float)y1, (float)y2));
+        }
         private void OnZoomRequested(object o, ZoomRequestedArgs e)
         {
             if (ZoomRequested != null)
                 ZoomRequested(o, e);
+        }
+
+        private void OnLastZoomRequested(object o, ZoomRequestedArgs e)
+        {
+            if (LastZoomRequested != null)
+                LastZoomRequested(o, e);
         }
     }
 
@@ -200,4 +230,6 @@ namespace IndiaTango.Models
     public delegate void ZoomRequested(object o, ZoomRequestedArgs e);
 
     public delegate void ZoomResetRequested(object o);
+
+    public delegate void LastZoomRequested(object o, ZoomRequestedArgs e);
 }

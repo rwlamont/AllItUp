@@ -42,6 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -51,6 +52,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\icon.ico</ApplicationIcon>
@@ -191,7 +193,6 @@
     <Compile Include="ViewModels\EditSiteDataViewModel.cs" />
     <Compile Include="ViewModels\ExportToImageViewModel.cs" />
     <Compile Include="ViewModels\ExportViewModel.cs" />
-    <Compile Include="ViewModels\HeatMapViewModel.cs" />
     <Compile Include="ViewModels\LoadInDataMetaViewModel.cs" />
     <Compile Include="ViewModels\LogWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -220,9 +221,6 @@
     </Compile>
     <Compile Include="Views\EditSensorView.xaml.cs">
       <DependentUpon>EditSensorView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\HeatMapView.xaml.cs">
-      <DependentUpon>HeatMapView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoadInDataMetaView.xaml.cs">
       <DependentUpon>LoadInDataMetaView.xaml</DependentUpon>
@@ -323,10 +321,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EditSensorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\HeatMapView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -505,6 +499,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

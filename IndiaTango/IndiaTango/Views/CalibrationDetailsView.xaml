@@ -4,7 +4,7 @@
         xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit/extended"
-        Title="{Binding Title}" Icon="{Binding Icon}" Height="350" Width="450" WindowStartupLocation="CenterOwner">
+        Title="{Binding Title}" Icon="{Binding Icon}" Height="350" Width="450" WindowStartupLocation="CenterOwner" Topmost="True">
     <Grid Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
