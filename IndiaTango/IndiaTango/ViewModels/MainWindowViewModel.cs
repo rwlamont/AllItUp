@@ -49,7 +49,7 @@ namespace IndiaTango.ViewModels
             _erroneousValuesFromDataTable = new List<ErroneousValue>();
 
             #region Set Up Detection Methods
-
+            ShowLastZoom = false;
             _minMaxDetector = new MinMaxDetector();
             _minMaxDetector.GraphUpdateNeeded += () =>
                                                      {
@@ -84,9 +84,8 @@ namespace IndiaTango.ViewModels
             _zoomBehaviour = new CustomZoomBehaviour { IsEnabled = true };
             _zoomBehaviour.ZoomRequested += (o, e) =>
                                                 {
-                                                    LastStartTime = StartTime;
-                                                    LastEndTime = EndTime;
-                                                    LastRange = Range;
+                                                    ZoomState z = new ZoomState(StartTime, EndTime, Range);
+                                                    _previousZoom.Add(z);
                                                     StartTime = e.LowerX;
                                                     EndTime = e.UpperX;
                                                     Range = new DoubleRange(e.LowerY, e.UpperY);
@@ -104,9 +103,11 @@ namespace IndiaTango.ViewModels
                                                         sensor.SetUpperAndLowerBounds(StartTime, EndTime);
                                                     }
                                                     SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Zoom");
+                                                    ShowLastZoom = true;
                                                 };
             _zoomBehaviour.ZoomResetRequested += o =>
                                                      {
+                                                         _previousZoom.Clear();
                                                          foreach (var sensor in _sensorsToGraph)
                                                          {
                                                              sensor.RemoveBounds();
@@ -115,26 +116,36 @@ namespace IndiaTango.ViewModels
                                                          SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "ZoomReset");
                                                          CalculateYAxis();
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
+                                                         ShowLastZoom = false;
                                                      };
             _zoomBehaviour.LastZoomRequested += (o, e) =>
             {
-                StartTime = LastStartTime;
-                EndTime = LastEndTime;
-                Range = LastRange;
-                foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
+                if (ShowLastZoom == true)
                 {
-                    var itemsToKeep =
-                        detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
-                            x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime)
-                            .ToList();
-                    detectionMethod.ListBox.Items.Clear();
-                    itemsToKeep.ForEach(x => detectionMethod.ListBox.Items.Add(x));
+                    ZoomState z = _previousZoom.GetLast();
+                    StartTime = z.StartTime;
+                    EndTime = z.EndTime;
+                    Range = z.Range;
+                    foreach (var detectionMethod in _detectionMethods.Where(x => x.IsEnabled))
+                    {
+                        var itemsToKeep =
+                            detectionMethod.ListBox.Items.Cast<ErroneousValue>().Where(
+                                x => x.TimeStamp >= StartTime && x.TimeStamp <= EndTime)
+                                .ToList();
+                        detectionMethod.ListBox.Items.Clear();
+                        itemsToKeep.ForEach(x => detectionMethod.ListBox.Items.Add(x));
+                    }
+                    foreach (var sensor in _sensorsToGraph)
+                    {
+                        sensor.SetUpperAndLowerBounds(StartTime, EndTime);
+                    }
+                    SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Zoom");
+                    if (_previousZoom.Count == 0)
+                    {
+                        ShowLastZoom = false;
+                    }
                 }
-                foreach (var sensor in _sensorsToGraph)
-                {
-                    sensor.SetUpperAndLowerBounds(StartTime, EndTime);
-                }
-                SampleValues(Common.MaximumGraphablePoints, _sensorsToGraph, "Zoom");
+
             };
 
             behaviourManager.Behaviours.Add(_zoomBehaviour);
@@ -299,9 +310,8 @@ namespace IndiaTango.ViewModels
                                                               Margin = new Thickness(5)
                                                           };
         private string siteOwner;
-        private DoubleRange LastRange;
-        private DateTime LastEndTime;
-        private DateTime LastStartTime;
+        private PreviousZoomHelper _previousZoom =  new PreviousZoomHelper();
+
 
         #endregion
 
@@ -4542,5 +4552,7 @@ namespace IndiaTango.ViewModels
         #endregion
 
         public string siteName { get; set; }
+
+        public bool ShowLastZoom { get; set; }
     }
 }

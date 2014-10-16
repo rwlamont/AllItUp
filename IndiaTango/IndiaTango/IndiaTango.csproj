@@ -168,6 +168,7 @@
     <Compile Include="Models\MissingValuesDetector.cs" />
     <Compile Include="Models\NamedBitmap.cs" />
     <Compile Include="Models\OwnerHelper.cs" />
+    <Compile Include="Models\PreviousZoomHelper.cs" />
     <Compile Include="Models\RepeatedValuesDetector.cs" />
     <Compile Include="Models\RunningMeanStandardDeviationDetector.cs" />
     <Compile Include="Models\SensorMetaData.cs" />
