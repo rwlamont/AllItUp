@@ -117,6 +117,7 @@ namespace IndiaTango.ViewModels
                                                          CalculateYAxis();
                                                          CheckTheseMethods(_detectionMethods.Where(x => x.IsEnabled));
                                                          ShowLastZoom = false;
+                                                         _previousZoom.Clear();
                                                      };
             _zoomBehaviour.LastZoomRequested += (o, e) =>
             {
@@ -172,7 +173,7 @@ namespace IndiaTango.ViewModels
             behaviourManager.Behaviours.Add(_selectionBehaviour);
             #endregion
 
-            
+
             _dateAnnotator = new DateAnnotationBehaviour { IsEnabled = true };
             behaviourManager.Behaviours.Add(_dateAnnotator);
 
@@ -283,6 +284,7 @@ namespace IndiaTango.ViewModels
         private readonly CalibrationAnnotatorBehaviour _calibrationAnnotator;
         private SelectionMadeArgs _selection;
         private bool _actionsEnabled;
+        private bool _showLastZoom;
         private bool _detectionMethodsEnabled;
         private IDetectionMethod _selectedMethod;
         private bool _revertGraphedToRawIsVisible;
@@ -310,7 +312,7 @@ namespace IndiaTango.ViewModels
                                                               Margin = new Thickness(5)
                                                           };
         private string siteOwner;
-        private PreviousZoomHelper _previousZoom =  new PreviousZoomHelper();
+        private PreviousZoomHelper _previousZoom = new PreviousZoomHelper();
 
 
         #endregion
@@ -424,7 +426,7 @@ namespace IndiaTango.ViewModels
             }
         }
 
-        public List <string> AllUsers
+        public List<string> AllUsers
         {
 
             get
@@ -524,7 +526,7 @@ namespace IndiaTango.ViewModels
         public string CurrentUser
         {
             get
-            { return UserHelper.ShowCurrentUser;}
+            { return UserHelper.ShowCurrentUser; }
             set { _user = value; NotifyOfPropertyChange(() => CurrentUser); }
 
         }
@@ -783,6 +785,14 @@ namespace IndiaTango.ViewModels
         public Visibility RevertGraphedToRawVisibility
         {
             get { return _revertGraphedToRawIsVisible ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        /// <summary>
+        /// The current visibility of the Last Zoom Button
+        /// </summary>
+        public Visibility LastZoomVisibility
+        {
+            get { return _showLastZoom ? Visibility.Visible : Visibility.Collapsed; }
         }
 
         /// <summary>
@@ -1218,6 +1228,7 @@ namespace IndiaTango.ViewModels
             }
 
             ChartSeries = generatedSeries;
+            ShowLastZoom = false;
         }
 
         /// <summary>
@@ -1328,7 +1339,7 @@ namespace IndiaTango.ViewModels
                 _dataSetFiles = null;
                 NotifyOfPropertyChange(() => SiteNames);
             };
-            
+
             _windowManager.ShowDialog(view);
             NotifyOfPropertyChange(() => EditingNotes);
             return view.WasCompleted;
@@ -1340,7 +1351,7 @@ namespace IndiaTango.ViewModels
         /// <param name="series">The line series to calculate from</param>
         /// <returns>The smallest Y value</returns>
         private double MinimumY(IEnumerable<LineSeries> series)
-        { 
+        {
             double[] min = { double.MaxValue };
             foreach (var value in series.SelectMany(line => ((DataSeries<DateTime, float>)line.DataSeries).Where(value => value.Y < min[0])))
             {
@@ -2925,7 +2936,7 @@ namespace IndiaTango.ViewModels
                 return;
             }
 
-           
+
 
             var openFileDialog = new OpenFileDialog { Filter = @"All B3 Data Files|*.csv;*.txt;*.gln|CSV Files|*.csv|TSV Files|*.txt|GLEON files|*.gln" };
 
@@ -2943,190 +2954,190 @@ namespace IndiaTango.ViewModels
             DisableFeatures();
             var result = new List<Sensor>();
 
-                                 ShowProgressArea = true;
-                                 ProgressIndeterminate = false;
-                                 ProgressValue = 0;
-                                 
-                                 var reader = new CSVReader(filename);
-                                 
-                                 reader.ProgressChanged += (sender, args) =>
-                                                               {
-                                                                   ProgressValue = args.Progress;
-                                                                   WaitEventString =
-                                                                       string.Format("Importing from {0} {1}%",
-                                                                                     filename,
-                                                                                     ProgressValue);
-                                                               };
-                                 try
-                                 {
-                                      result = reader.ReadSensors(null, CurrentDataset);
-                                 }
-                                 catch (Exception ex)
-                                 {
-                                     Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
-                                      result = null;
-                                 }
+            ShowProgressArea = true;
+            ProgressIndeterminate = false;
+            ProgressValue = 0;
 
-                                            
-                                             if (result == null)
-                                             {
-                                                 ShowProgressArea = false;
-                                                 EnableFeatures();
-                                                 return;
-                                             }
+            var reader = new CSVReader(filename);
+
+            reader.ProgressChanged += (sender, args) =>
+                                          {
+                                              ProgressValue = args.Progress;
+                                              WaitEventString =
+                                                  string.Format("Importing from {0} {1}%",
+                                                                filename,
+                                                                ProgressValue);
+                                          };
+            try
+            {
+                result = reader.ReadSensors(null, CurrentDataset);
+            }
+            catch (Exception ex)
+            {
+                Common.ShowMessageBoxWithException("Failed Import", "Bad File Format", false, true, ex);
+                result = null;
+            }
 
 
-                                             var sensors = (List<Sensor>)result;
+            if (result == null)
+            {
+                ShowProgressArea = false;
+                EnableFeatures();
+                return;
+            }
 
-                                             if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
-                                             {
-                                                 CurrentDataset.Sensors = sensors;
-                                                 CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
-                                             }
-                                             else
-                                             {
-                                                 var askUser =
-                                                     _container.GetInstance(typeof(SpecifyValueViewModel),
-                                                                            "SpecifyValueViewModel") as
-                                                     SpecifyValueViewModel;
 
-                                                 if (askUser == null)
-                                                 {
-                                                     Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
-                                                                           false, true);
-                                                     return;
-                                                 }
+            var sensors = (List<Sensor>)result;
 
-                                                 askUser.ComboBoxItems = new List<string> { "Keep old values", "Keep new values" };
-                                                 askUser.Text = "Keep old values";
-                                                 askUser.ShowComboBox = true;
-                                                 askUser.Message = "How do you want to handle overlapping points. Note this will also overwrite empty or missing values within the overlaping period";
-                                                 askUser.CanEditComboBox = false;
-                                                 askUser.ComboBoxSelectedIndex = 0;
-                                                 askUser.Title = "Importing";
+            if (CurrentDataset.Sensors == null || CurrentDataset.Sensors.Count == 0)
+            {
+                CurrentDataset.Sensors = sensors;
+                CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
+            }
+            else
+            {
+                var askUser =
+                    _container.GetInstance(typeof(SpecifyValueViewModel),
+                                           "SpecifyValueViewModel") as
+                    SpecifyValueViewModel;
 
-                                                 _windowManager.ShowDialog(askUser);
+                if (askUser == null)
+                {
+                    Common.ShowMessageBox("EPIC FAIL", "RUN AROUND WITH NO REASON",
+                                          false, true);
+                    return;
+                }
 
-                                                 var keepOldValues = askUser.ComboBoxSelectedIndex == 0;
+                askUser.ComboBoxItems = new List<string> { "Keep old values", "Keep new values" };
+                askUser.Text = "Keep old values";
+                askUser.ShowComboBox = true;
+                askUser.Message = "How do you want to handle overlapping points. Note this will also overwrite empty or missing values within the overlaping period";
+                askUser.CanEditComboBox = false;
+                askUser.ComboBoxSelectedIndex = 0;
+                askUser.Title = "Importing";
 
-                                                 var sensorMatchView =
-                                                     _container.GetInstance(typeof(MatchToExistingSensorsViewModel),
-                                                                            "MatchToExistingSensorsViewModel") as
-                                                     MatchToExistingSensorsViewModel;
+                _windowManager.ShowDialog(askUser);
 
-                                                 if (sensorMatchView == null)
-                                                     return;
+                var keepOldValues = askUser.ComboBoxSelectedIndex == 0;
 
-                                                 sensorMatchView.ExistingSensors = CurrentDataset.Sensors;
-                                                 sensorMatchView.NewSensors = sensors;
+                var sensorMatchView =
+                    _container.GetInstance(typeof(MatchToExistingSensorsViewModel),
+                                           "MatchToExistingSensorsViewModel") as
+                    MatchToExistingSensorsViewModel;
 
-                                                 _windowManager.ShowDialog(sensorMatchView);
+                if (sensorMatchView == null)
+                    return;
 
-                                                 var orderedTimestamps = sensors.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).Distinct().ToArray();
-                                                 var firstTimestamp = orderedTimestamps.Min();
-                                                 var lastTimestamp = orderedTimestamps.Max();
-                                                 orderedTimestamps = new DateTime[0];
-                                                 var highestYear = NumberOfDataChunks() - 1;
+                sensorMatchView.ExistingSensors = CurrentDataset.Sensors;
+                sensorMatchView.NewSensors = sensors;
 
-                                                 var firstNewYear = firstTimestamp.Year - CurrentDataset.StartYear.Year;
+                _windowManager.ShowDialog(sensorMatchView);
 
-                                                 if (firstNewYear < CurrentDataset.LowestYearLoaded)
-                                                 {
-                                                     CurrentDataset.LoadInSensorData(firstNewYear < 0 ?
-                                                            Enumerable.Range(0, CurrentDataset.LowestYearLoaded).ToArray()
-                                                          : Enumerable.Range(firstNewYear, CurrentDataset.LowestYearLoaded - firstNewYear).ToArray(), true);
-                                                 }
+                var orderedTimestamps = sensors.SelectMany(x => x.CurrentState.Values).Select(x => x.Key).Distinct().ToArray();
+                var firstTimestamp = orderedTimestamps.Min();
+                var lastTimestamp = orderedTimestamps.Max();
+                orderedTimestamps = new DateTime[0];
+                var highestYear = NumberOfDataChunks() - 1;
 
-                                                 var lastNewYear = lastTimestamp.Year - CurrentDataset.StartYear.Year;
-                                                 var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
-                                                 if (lastNewYear > CurrentDataset.HighestYearLoaded)
-                                                 {
-                                                     CurrentDataset.LoadInSensorData(lastNewYear > highestYear ?
-                                                         Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, highestYear - CurrentDataset.HighestYearLoaded).ToArray()
-                                                       : Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, lastNewYear - CurrentDataset.HighestYearLoaded).ToArray(), true);
-                                                 }
+                var firstNewYear = firstTimestamp.Year - CurrentDataset.StartYear.Year;
 
-                                                 foreach (var newSensor in sensors)
-                                                 {
-                                                     var match =
-                                                         sensorMatchView.SensorLinks.FirstOrDefault(
-                                                             x => x.MatchingSensor == newSensor);
-                                                     if (match == null)
-                                                     {
-                                                         Debug.WriteLine("Adding new sensor");
-                                                         CurrentDataset.Sensors.Add(newSensor);
-                                                     }
-                                                     else
-                                                     {
-                                                         var matchingSensor =
-                                                             CurrentDataset.Sensors.FirstOrDefault(
-                                                                 x => x == match.ExistingSensor);
+                if (firstNewYear < CurrentDataset.LowestYearLoaded)
+                {
+                    CurrentDataset.LoadInSensorData(firstNewYear < 0 ?
+                           Enumerable.Range(0, CurrentDataset.LowestYearLoaded).ToArray()
+                         : Enumerable.Range(firstNewYear, CurrentDataset.LowestYearLoaded - firstNewYear).ToArray(), true);
+                }
 
-                                                         if (matchingSensor == null)
-                                                         {
-                                                             Debug.WriteLine(
-                                                                 "Failed to find the sensor again, embarrasing!");
-                                                             continue;
-                                                         }
+                var lastNewYear = lastTimestamp.Year - CurrentDataset.StartYear.Year;
+                var reason = ChangeReason.AddNewChangeReason("[Importer] Imported new values on " + DateTime.Now);
+                if (lastNewYear > CurrentDataset.HighestYearLoaded)
+                {
+                    CurrentDataset.LoadInSensorData(lastNewYear > highestYear ?
+                        Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, highestYear - CurrentDataset.HighestYearLoaded).ToArray()
+                      : Enumerable.Range(CurrentDataset.HighestYearLoaded + 1, lastNewYear - CurrentDataset.HighestYearLoaded).ToArray(), true);
+                }
 
-                                                         Debug.WriteLine("Merging sensors");
-                                                         //Otherwise clone the current state
-                                                         var newState = matchingSensor.CurrentState.Clone();
-                                                         //Check to see if values are inserted
-                                                         var insertedValues = false;
-                                                         
-                                                         //And add values for any new dates we want
-                                                         foreach (var value in newSensor.CurrentState.Values.Where(value =>
-                                                                     !keepOldValues || !(matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
-                                                         {
-                                                             newState.Values[value.Key] = value.Value;
-                                                             if (matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))
-                                                                 newState.AddToChanges(value.Key, reason.ID);
-                                                             matchingSensor.RawData.Values[value.Key] = value.Value;
-                                                             insertedValues = true;
-                                                         }
-                                                         
-                                                         if (insertedValues)
-                                                         {
-                                                             //Give a reason
-                                                             newState.Reason = reason;
-                                                             //Insert new state
-                                                             matchingSensor.AddState(newState);
-                                                             matchingSensor.ClearUndoStates();
-                                                             EventLogger.LogSensorInfo(CurrentDataset,
-                                                                                       matchingSensor.Name,
-                                                                                       "Added values from new import" );
-                                                         }
-                                                     }
-                                                 }
-                                                 CurrentDataset.CalculateDataSetValues();
-                                                 if (CurrentDataset.HighestYearLoaded == highestYear)
-                                                     CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
-                                             }
+                foreach (var newSensor in sensors)
+                {
+                    var match =
+                        sensorMatchView.SensorLinks.FirstOrDefault(
+                            x => x.MatchingSensor == newSensor);
+                    if (match == null)
+                    {
+                        Debug.WriteLine("Adding new sensor");
+                        CurrentDataset.Sensors.Add(newSensor);
+                    }
+                    else
+                    {
+                        var matchingSensor =
+                            CurrentDataset.Sensors.FirstOrDefault(
+                                x => x == match.ExistingSensor);
 
-                                             UpdateGUI();
+                        if (matchingSensor == null)
+                        {
+                            Debug.WriteLine(
+                                "Failed to find the sensor again, embarrasing!");
+                            continue;
+                        }
 
-                                             if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
-                                             {
-                                                 var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
-                                                 foreach (var sensor in Sensors)
-                                                 {
-                                                     sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
-                                                 }
-                                             }
-                                             _evaluator = new FormulaEvaluator(Sensors);
-                                             _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
+                        Debug.WriteLine("Merging sensors");
+                        //Otherwise clone the current state
+                        var newState = matchingSensor.CurrentState.Clone();
+                        //Check to see if values are inserted
+                        var insertedValues = false;
 
-                                             ShowProgressArea = false;
-                                             EnableFeatures();
-                                             NotifyOfPropertyChange(() => LowestYearLoadedOptions);
-                                             NotifyOfPropertyChange(() => HighestYearLoadedOptions);
-                                             NotifyOfPropertyChange(() => LowestYearLoaded);
-                                             NotifyOfPropertyChange(() => HighestYearLoaded);
+                        //And add values for any new dates we want
+                        foreach (var value in newSensor.CurrentState.Values.Where(value =>
+                                    !keepOldValues || !(matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))))
+                        {
+                            newState.Values[value.Key] = value.Value;
+                            if (matchingSensor.CurrentState.Values.ContainsKey(value.Key) || matchingSensor.RawData.Values.ContainsKey(value.Key))
+                                newState.AddToChanges(value.Key, reason.ID);
+                            matchingSensor.RawData.Values[value.Key] = value.Value;
+                            insertedValues = true;
+                        }
 
-                                             CurrentDataset.SaveToFile();
-                                         
-  
+                        if (insertedValues)
+                        {
+                            //Give a reason
+                            newState.Reason = reason;
+                            //Insert new state
+                            matchingSensor.AddState(newState);
+                            matchingSensor.ClearUndoStates();
+                            EventLogger.LogSensorInfo(CurrentDataset,
+                                                      matchingSensor.Name,
+                                                      "Added values from new import");
+                        }
+                    }
+                }
+                CurrentDataset.CalculateDataSetValues();
+                if (CurrentDataset.HighestYearLoaded == highestYear)
+                    CurrentDataset.HighestYearLoaded = NumberOfDataChunks() - 1;
+            }
+
+            UpdateGUI();
+
+            if (Sensors.FirstOrDefault(x => x.Variable == null) != null)
+            {
+                var sensorVariables = SensorVariable.CreateSensorVariablesFromSensors(Sensors);
+                foreach (var sensor in Sensors)
+                {
+                    sensor.Variable = sensorVariables.FirstOrDefault(x => x.Sensor == sensor);
+                }
+            }
+            _evaluator = new FormulaEvaluator(Sensors);
+            _dateAnnotator.DataInterval = CurrentDataset.DataInterval;
+
+            ShowProgressArea = false;
+            EnableFeatures();
+            NotifyOfPropertyChange(() => LowestYearLoadedOptions);
+            NotifyOfPropertyChange(() => HighestYearLoadedOptions);
+            NotifyOfPropertyChange(() => LowestYearLoaded);
+            NotifyOfPropertyChange(() => HighestYearLoaded);
+
+            CurrentDataset.SaveToFile();
+
+
 
         }
 
@@ -3138,7 +3149,7 @@ namespace IndiaTango.ViewModels
             var importWindow = (LoadInDataMetaViewModel)_container.GetInstance(typeof(LoadInDataMetaViewModel), "LoadInDataMetaViewModel");
             if (importWindow == null)
                 return;
-            
+
             _windowManager.ShowDialog(importWindow);
 
             if (importWindow.Success)
@@ -3180,7 +3191,7 @@ namespace IndiaTango.ViewModels
                 DisableFeatures();
                 bw.RunWorkerAsync();
                 var newDataset =
-                new Dataset(new Site(Site.NextID, "New Site", "", null, null,null));
+                new Dataset(new Site(Site.NextID, "New Site", "", null, null, null));
                 CurrentDataset = newDataset;
                 Import(importWindow.DataPath);
                 LoadSiteFromMeta(importWindow.MetaPath, CurrentDataset);
@@ -3214,7 +3225,7 @@ namespace IndiaTango.ViewModels
             if (attachedDataset.Site.PrimaryContact == null)
                 view.IsNewSite = true;
             view.LoadFromMeta(filename);
-            
+
             view.Deactivated += (o, e) =>
             {
                 _dataSetFiles = null;
@@ -3224,9 +3235,9 @@ namespace IndiaTango.ViewModels
             view.BtnSiteDone();
             NotifyOfPropertyChange(() => EditingNotes);
             return true;
-        
+
         }
-        
+
 
         /// <summary>
         /// Copies a site to the appdata
@@ -3738,7 +3749,7 @@ namespace IndiaTango.ViewModels
             var user = askUser.ComboBoxSelectedIndex;
             UserHelper.ChangeCurrent(user);
             CurrentUser = UserHelper.CurrentUser;
-            
+
         }
         /// <summary>
         /// Reverts sensors to raw values
@@ -3833,7 +3844,7 @@ namespace IndiaTango.ViewModels
 
             view.Sensor = sensor;
             _windowManager.ShowWindow(view);
-           
+
         }
 
         /// <summary>
@@ -3851,7 +3862,7 @@ namespace IndiaTango.ViewModels
         {
             ActionsEnabled = _previousActionsStatus;
         }
-       
+
         /// <summary>
         /// Disables actions
         /// </summary>
@@ -3875,7 +3886,7 @@ namespace IndiaTango.ViewModels
         /// <summary>
         /// Plots the density calcualations for the site
         /// </summary>
-        public void PlotDensity()  
+        public void PlotDensity()
         {
             _sensorsToGraph.Clear();
 
@@ -4461,7 +4472,7 @@ namespace IndiaTango.ViewModels
 
             foreach (var erroneousValue in _erroneousValuesFromDataTable)
             {
-                if(!currentlySelectedCellsDict.ContainsKey(erroneousValue.TimeStamp))
+                if (!currentlySelectedCellsDict.ContainsKey(erroneousValue.TimeStamp))
                     currentlySelectedCellsDict[erroneousValue.TimeStamp] = new List<Sensor>();
 
                 currentlySelectedCellsDict[erroneousValue.TimeStamp].Add(erroneousValue.Owner);
@@ -4553,6 +4564,20 @@ namespace IndiaTango.ViewModels
 
         public string siteName { get; set; }
 
-        public bool ShowLastZoom { get; set; }
+        public bool ShowLastZoom
+        {
+            get
+            {
+                return _showLastZoom;
+            }
+
+            set
+            {
+                _showLastZoom = value;
+                NotifyOfPropertyChange(() => LastZoomVisibility);
+            }
+        }
     }
+    
+
 }

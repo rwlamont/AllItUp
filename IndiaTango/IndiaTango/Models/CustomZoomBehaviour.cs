@@ -93,11 +93,6 @@ namespace IndiaTango.Models
 
         }
 
-        public override void MouseWheel(Point position, double delta)
-        {
-            RequestLastZoom();
-        }
-
         public override void MouseLeftButtonUp(Point position)
         {
             if (!_leftMouseDown)
