@@ -86,12 +86,18 @@ namespace IndiaTango.Models
 
         }
 
+        /// <summary>
+        /// Clears all previous zoom states
+        /// </summary>
         public void Clear()
         {
             _previousZooms.Clear();
             this._count = _previousZooms.Count;
         }
 
+        /// <summary>
+        /// The number of currently queued zoom states
+        /// </summary>
         public int Count { get { return _count; }
             set
             {

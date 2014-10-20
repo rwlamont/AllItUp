@@ -43,7 +43,7 @@ namespace IndiaTango.Models
         public event ZoomRequested ZoomRequested;
 
         /// <summary>
-        /// Fired when a zoom has been requested by the user
+        /// Fired when the last zoom has been requested by the user
         /// </summary>
         public event LastZoomRequested LastZoomRequested;
 

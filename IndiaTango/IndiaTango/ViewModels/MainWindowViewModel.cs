@@ -4561,9 +4561,14 @@ namespace IndiaTango.ViewModels
         }
 
         #endregion
-
+        /// <summary>
+        /// Current Sites name
+        /// </summary>
         public string siteName { get; set; }
 
+        /// <summary>
+        /// Wether to show the lastzoom button
+        /// </summary>
         public bool ShowLastZoom
         {
             get
